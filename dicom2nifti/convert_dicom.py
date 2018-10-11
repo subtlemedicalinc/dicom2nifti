@@ -138,7 +138,8 @@ def dicom_array_to_nifti(dicom_list, output_file, reorient_nifti=True):
         raise ConversionValidationError("UNSUPPORTED_DATA")
 
     if settings.resample:
-        resample.resample_image(results['NII_FILE'])
+        if not common.is_orthogonal(dicom_list):
+            resample.resample_image(results['NII_FILE'])
 
     # do image reorientation if needed
     if reorient_nifti:

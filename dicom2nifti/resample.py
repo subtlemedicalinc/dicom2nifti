@@ -16,33 +16,8 @@ def resample_image(input_nifti):
     """
     # read the input image
     input_image = nibabel.load(input_nifti)
-    # check if there is gantry tilting in the image
-    if _is_gantry_tilted(input_image.affine):
-        output_image = _resample_gantry_tilted(input_image)
-        output_image.to_filename(input_nifti)
-
-
-def _is_gantry_tilted(affine):
-    # calculate the x, y and z directions in world coordinates
-    world_x = numpy.transpose(numpy.dot(affine, [[1], [0], [0], [0]]))[0, :3]
-    world_y = numpy.transpose(numpy.dot(affine, [[0], [1], [0], [0]]))[0, :3]
-    world_z = numpy.transpose(numpy.dot(affine, [[0], [0], [1], [0]]))[0, :3]
-
-    # normalize the vectors
-    world_x /= numpy.linalg.norm(world_x)
-    world_y /= numpy.linalg.norm(world_y)
-    world_z /= numpy.linalg.norm(world_z)
-
-    # calulate new orthogonal z and y and normalize
-    orthogonal_z = numpy.cross(world_y, world_x)
-    orthogonal_y = numpy.cross(world_x, world_z)
-    orthogonal_z /= numpy.linalg.norm(orthogonal_z)
-    orthogonal_y /= numpy.linalg.norm(orthogonal_y)
-
-    if numpy.allclose(world_y, orthogonal_y) and numpy.allclose(world_z, orthogonal_z):
-        return False
-
-    return True
+    output_image = _resample_gantry_tilted(input_image)
+    output_image.to_filename(input_nifti)
 
 
 def _resample_gantry_tilted(original_image):

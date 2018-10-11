@@ -549,6 +549,16 @@ def validate_orthogonal(dicoms):
 
     :param dicoms: check that we have a volume without skewing
     """
+    if not is_orthogonal(dicoms, log_details=True):
+        raise ConversionValidationError('NON_CUBICAL_IMAGE/GANTRY_TILT')
+
+
+def is_orthogonal(dicoms, log_details=False):
+    """
+    Validate that volume is orthonormal
+
+    :param dicoms: check that we have a volume without skewing
+    """
     first_image_orient1 = numpy.array(dicoms[0].ImageOrientationPatient)[0:3]
     first_image_orient2 = numpy.array(dicoms[0].ImageOrientationPatient)[3:6]
     first_image_pos = numpy.array(dicoms[0].ImagePositionPatient)
@@ -563,13 +573,14 @@ def validate_orthogonal(dicoms):
 
     if not numpy.allclose(first_image_dir, combined_dir, rtol=0.05, atol=0.05) \
             and not numpy.allclose(first_image_dir, -combined_dir, rtol=0.05, atol=0.05):
-        logger.warning('Orthogonality check failed: non cubical image')
-        logger.warning('---------------------------------------------------------')
-        logger.warning(first_image_dir)
-        logger.warning(combined_dir)
-        logger.warning('---------------------------------------------------------')
-        raise ConversionValidationError('NON_CUBICAL_IMAGE/GANTRY_TILT')
-
+        if log_details:
+            logger.warning('Orthogonality check failed: non cubical image')
+            logger.warning('---------------------------------------------------------')
+            logger.warning(first_image_dir)
+            logger.warning(combined_dir)
+            logger.warning('---------------------------------------------------------')
+        return False
+    return True
 
 def sort_dicoms(dicoms):
     """
