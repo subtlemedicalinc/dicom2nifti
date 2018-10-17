@@ -12,7 +12,7 @@ from __future__ import print_function
 import nibabel
 import numpy
 
-from dicom2nifti.image_volume import ImageVolume, SliceType
+from dicom2nifti.image_volume import load, SliceType
 
 
 def reorient_image(input_image, output_image):
@@ -28,7 +28,7 @@ def reorient_image(input_image, output_image):
     # Use the imageVolume module to find which coordinate corresponds to each plane
     # and get the image data in RAS orientation
     # print 'Reading nifti'
-    image = ImageVolume(input_image)
+    image = load(input_image)
 
     # 4d have a different conversion to 3d
     # print 'Reorganizing data'

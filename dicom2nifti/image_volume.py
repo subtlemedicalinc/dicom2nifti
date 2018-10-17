@@ -39,6 +39,11 @@ class SliceOrientation(object):
     y_inverted = False
 
 
+def load(nifti_file):
+    nifti_image = nibabel.load(nifti_file)
+    return ImageVolume(nifti_image)
+
+
 class ImageVolume(object):
     """
     Class representing an imagevolume.
@@ -46,9 +51,8 @@ class ImageVolume(object):
     It will take the affine matrix into account to find the correct orientation
     """
 
-    def __init__(self, input_nifti):
-        self.nifti = None
-        self.nifti = nibabel.load(input_nifti)
+    def __init__(self, nifti_image):
+        self.nifti = nifti_image
         # assert that it is a 3D image
         assert self.nifti.get_data().squeeze().ndim >= 3
         self.nifti_data = self.nifti.get_data()
