@@ -382,21 +382,19 @@ def apply_scaling(data, dicom_headers):
             or private_scale_slope_tag in dicom_headers or private_scale_intercept_tag in dicom_headers:
         rescale_slope = 1
         rescale_intercept = 0
-        private_scale_slope = 1.0
-        private_scale_intercept = 0.0
         if 'RescaleSlope' in dicom_headers:
             rescale_slope = dicom_headers.RescaleSlope
         if 'RescaleIntercept' in dicom_headers:
             rescale_intercept = dicom_headers.RescaleIntercept
-        try:
-            # this section can sometimes fail due to unknown private fields
-            if private_scale_slope_tag in dicom_headers:
-                private_scale_slope = float(dicom_headers[private_scale_slope_tag].value)
-            if private_scale_slope_tag in dicom_headers:
-                private_scale_slope = float(dicom_headers[private_scale_slope_tag].value)
-        except:
-            pass
-        return do_scaling(data, rescale_slope, rescale_intercept, private_scale_slope, private_scale_intercept)
+        # try:
+        #     # this section can sometimes fail due to unknown private fields
+        #     if private_scale_slope_tag in dicom_headers:
+        #         private_scale_slope = float(dicom_headers[private_scale_slope_tag].value)
+        #     if private_scale_slope_tag in dicom_headers:
+        #         private_scale_slope = float(dicom_headers[private_scale_slope_tag].value)
+        # except:
+        #     pass
+        return do_scaling(data, rescale_slope, rescale_intercept)
     else:
         return data
 
