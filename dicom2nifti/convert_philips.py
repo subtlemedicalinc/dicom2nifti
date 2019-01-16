@@ -393,6 +393,7 @@ def _create_affine_multiframe(multiframe_dicom):
     This will work for siemens dti and 4D if in mosaic format
     """
     first_frame = multiframe_dicom[Tag(0x5200, 0x9230)][0]
+    last_frame = multiframe_dicom[Tag(0x5200, 0x9230)][-1]
     # Create affine matrix (http://nipy.sourceforge.net/nibabel/dicom/dicom_orientation.html#dicom-slice-affine)
     image_orient1 = numpy.array(first_frame.PlaneOrientationSequence[0].ImageOrientationPatient)[0:3].astype(float)
     image_orient2 = numpy.array(first_frame.PlaneOrientationSequence[0].ImageOrientationPatient)[3:6].astype(float)
@@ -403,8 +404,11 @@ def _create_affine_multiframe(multiframe_dicom):
     delta_c = float(first_frame[0x2005, 0x140f][0].PixelSpacing[1])
 
     image_pos = numpy.array(first_frame.PlanePositionSequence[0].ImagePositionPatient).astype(float)
+    last_image_pos = numpy.array(last_frame.PlanePositionSequence[0].ImagePositionPatient).astype(float)
 
-    delta_s = float(multiframe_dicom.SpacingBetweenSlices)
+    number_of_stack_slices = int(common.get_ss_value(multiframe_dicom[Tag(0x2001, 0x105f)][0][Tag(0x2001, 0x102d)]))
+    delta_s = abs(numpy.linalg.norm(last_image_pos - image_pos)) / (number_of_stack_slices - 1)
+
     return numpy.matrix(
         [[-image_orient1[0] * delta_c, -image_orient2[0] * delta_r, -delta_s * normal[0], -image_pos[0]],
          [-image_orient1[1] * delta_c, -image_orient2[1] * delta_r, -delta_s * normal[1], -image_pos[1]],
@@ -447,21 +451,8 @@ def _multiframe_to_block(multiframe_dicom):
         # apply scaling
         rescale_intercept = frame_info[slice_index].PixelValueTransformationSequence[0].RescaleIntercept
         rescale_slope = frame_info[slice_index].PixelValueTransformationSequence[0].RescaleSlope
-        private_scale_slope = 1.0
-        private_scale_intercept = 0.0
-        private_sequence_tag = Tag(0x2005, 0x140f)
-        private_scale_intercept_tag = Tag(0x2005, 0x100d)
-        private_scale_slope_tag = Tag(0x2005, 0x100e)
-        if private_sequence_tag in frame_info[slice_index]:
-            if private_scale_intercept_tag in frame_info[slice_index][private_sequence_tag][0]:
-                private_scale_intercept = common.get_fl_value(frame_info[slice_index][private_sequence_tag][0][
-                                                                  private_scale_intercept_tag])
-            if private_scale_slope_tag in frame_info[slice_index][private_sequence_tag][0]:
-                private_scale_slope = common.get_fl_value(
-                    frame_info[slice_index][private_sequence_tag][0][private_scale_slope_tag])
         block_data = common.do_scaling(block_data,
-                                       rescale_slope, rescale_intercept,
-                                       private_scale_slope, private_scale_intercept)
+                                       rescale_slope, rescale_intercept)
         # switch to float if needed
         if block_data.dtype != data_4d.dtype:
             data_4d = data_4d.astype(block_data.dtype)
