@@ -89,7 +89,7 @@ def is_dicom_file(filename):
         return True
     if settings.pydicom_read_force:
         try:
-            dicom_headers = pydicom.read_file(filename, defer_size=100, stop_before_pixels=True, force=True)
+            dicom_headers = pydicom.read_file(filename, defer_size="1 KB", stop_before_pixels=True, force=True)
             if dicom_headers is not None:
                 return True
         except:
@@ -102,7 +102,7 @@ def _is_compressed(dicom_file, force=False):
     Check if dicoms are compressed or not
     """
     header = pydicom.read_file(dicom_file,
-                               defer_size=70,
+                               defer_size="1 KB",
                                stop_before_pixels=True,
                                force=force)
 

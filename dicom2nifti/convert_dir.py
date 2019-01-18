@@ -52,7 +52,7 @@ def convert_directory(dicom_directory, output_folder, compression=True, reorient
                     # (max length for SeriesInstanceUID is 64 so defer_size 100 should be ok)
 
                     dicom_headers = compressed_dicom.read_file(file_path,
-                                                               defer_size=100,
+                                                               defer_size="1 KB",
                                                                stop_before_pixels=False,
                                                                force=dicom2nifti.settings.pydicom_read_force)
                     if not _is_valid_imaging_dicom(dicom_headers):
