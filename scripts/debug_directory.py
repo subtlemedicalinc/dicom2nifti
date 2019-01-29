@@ -25,6 +25,16 @@ class TestConversionDirectory(unittest.TestCase):
         finally:
             shutil.rmtree(tmp_output_dir)
 
+    def test_convert_directory2(self):
+
+        tmp_output_dir = tempfile.mkdtemp()
+        try:
+            convert_directory.convert_directory("/Users/abrys/Downloads/dicom_T1_UNKNOWN_2",
+                                                "/Users/abrys/Downloads")
+
+        finally:
+            shutil.rmtree(tmp_output_dir)
+
 
 
 if __name__ == '__main__':
