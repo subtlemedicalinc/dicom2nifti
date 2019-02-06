@@ -144,8 +144,8 @@ def _remove_accents(filename):
             unicode_filename = six.u(filename)
         cleaned_filename = unicodedata.normalize('NFKD', unicode_filename).encode('ASCII', 'ignore').decode('ASCII')
 
-        cleaned_filename = re.sub('[^\w\s-]', '', cleaned_filename.strip().lower())
-        cleaned_filename = re.sub('[-\s]+', '-', cleaned_filename)
+        cleaned_filename = re.sub(r'[^\w\s-]', '', cleaned_filename.strip().lower())
+        cleaned_filename = re.sub(r'[-\s]+', '-', cleaned_filename)
 
         return cleaned_filename
     except:
