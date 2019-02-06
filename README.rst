@@ -19,6 +19,10 @@ Python library for converting dicom files to nifti
 
    pip install dicom2nifti
 
+To support compressed dicom formats (JPEG, JPEG2000) we use gdcmconv from GDCM.
+Please install and check that gdcmconv is available from you default path.
+http://gdcm.sourceforge.net/wiki/index.php/Main_Page
+
 ---------------
  Updating
 ---------------
