@@ -534,10 +534,12 @@ def create_affine(sorted_dicoms):
     if numpy.linalg.norm(step) == 0.0:
         raise ConversionError("NOT_A_VOLUME")
 
-    affine = numpy.matrix([[-image_orient1[0] * delta_c, -image_orient2[0] * delta_r, -step[0], -image_pos[0]],
-                           [-image_orient1[1] * delta_c, -image_orient2[1] * delta_r, -step[1], -image_pos[1]],
-                           [image_orient1[2] * delta_c, image_orient2[2] * delta_r, step[2], image_pos[2]],
-                           [0, 0, 0, 1]])
+    affine = numpy.array(
+        [[-image_orient1[0] * delta_c, -image_orient2[0] * delta_r, -step[0], -image_pos[0]],
+         [-image_orient1[1] * delta_c, -image_orient2[1] * delta_r, -step[1], -image_pos[1]],
+         [image_orient1[2] * delta_c, image_orient2[2] * delta_r, step[2], image_pos[2]],
+         [0, 0, 0, 1]]
+    )
     return affine
 
 
@@ -579,6 +581,7 @@ def is_orthogonal(dicoms, log_details=False):
             logger.warning('---------------------------------------------------------')
         return False
     return True
+
 
 def sort_dicoms(dicoms):
     """

@@ -409,7 +409,7 @@ def _create_affine_multiframe(multiframe_dicom):
     number_of_stack_slices = int(common.get_ss_value(multiframe_dicom[Tag(0x2001, 0x105f)][0][Tag(0x2001, 0x102d)]))
     delta_s = abs(numpy.linalg.norm(last_image_pos - image_pos)) / (number_of_stack_slices - 1)
 
-    return numpy.matrix(
+    return numpy.array(
         [[-image_orient1[0] * delta_c, -image_orient2[0] * delta_r, -delta_s * normal[0], -image_pos[0]],
          [-image_orient1[1] * delta_c, -image_orient2[1] * delta_r, -delta_s * normal[1], -image_pos[1]],
          [image_orient1[2] * delta_c, image_orient2[2] * delta_r, delta_s * normal[2], image_pos[2]],

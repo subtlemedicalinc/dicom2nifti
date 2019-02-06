@@ -458,7 +458,7 @@ def _create_affine_siemens_mosaic(dicom_input):
     image_pos = dicom_header.ImagePositionPatient
 
     delta_s = dicom_header.SpacingBetweenSlices
-    return numpy.matrix(
+    return numpy.array(
         [[-image_orient1[0] * delta_c, -image_orient2[0] * delta_r, -delta_s * normal[0], -image_pos[0]],
          [-image_orient1[1] * delta_c, -image_orient2[1] * delta_r, -delta_s * normal[1], -image_pos[1]],
          [image_orient1[2] * delta_c, image_orient2[2] * delta_r, delta_s * normal[2], image_pos[2]],
