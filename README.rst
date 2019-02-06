@@ -55,7 +55,7 @@ Converting a directory with dicom files to nifti files
 
    import dicom2nifti
 
-   dicom2nifti.convert_directory(dicom_directory, output_folder)
+   dicom2nifti.convert_directory(dicom_directory, output_folder, compression=True, reorient=True)
 
 Converting a directory with only 1 series to 1 nifti file
 
