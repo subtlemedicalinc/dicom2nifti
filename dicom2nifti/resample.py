@@ -147,9 +147,9 @@ def _resample_inconsistent_slice_thickness(nii_image_filename, highest_res):
     first_key = [k for k in keys if '_0' in k]
     last_key = [k for k in keys if '_'+str(len(nii_image_filename)-1) in k]
 
-    original_image = nibabel.load(nii_image_filename[keys[highest_res]])
+    original_image = nii_image_filename[keys[highest_res]]
     origin = numpy.dot(original_image.affine, [0,0,0,1])
-    original_size = nibabel.load(nii_image_filename[last_key[0]]).shape
+    original_size = nii_image_filename[last_key[0]].shape
     target_voxel_size = original_image.header.get_zooms()
 
     x_axis_world = numpy.transpose(numpy.dot(original_image.affine, [[1], [0], [0], [0]]))[0, :3]
@@ -171,8 +171,8 @@ def _resample_inconsistent_slice_thickness(nii_image_filename, highest_res):
     points_world = []
 
     #
-    minaffine = nibabel.load(nii_image_filename[first_key[0]]).affine
-    maxaffine = nibabel.load(nii_image_filename[last_key[0]]).affine
+    minaffine = nii_image_filename[first_key[0]].affine
+    maxaffine = nii_image_filename[last_key[0]].affine
     for point in points_image[:4]:
         points_world.append(numpy.transpose(numpy.dot(minaffine,
                                                       [[point[0]], [point[1]], [point[2]], [1]]))[0, :3])
@@ -205,10 +205,10 @@ def _resample_inconsistent_slice_thickness(nii_image_filename, highest_res):
     #GAntry
     new_data={}
     for case in nii_image_filename:
-        image_affine = nibabel.load(nii_image_filename[case]).affine
+        image_affine = nii_image_filename[case].affine
         combined_affine = numpy.linalg.inv(new_affine).dot(image_affine)
         matrix, offset = nibabel.affines.to_matvec(numpy.linalg.inv(combined_affine))
-        new_data[case] = scipy.ndimage.affine_transform(nibabel.load(nii_image_filename[case]).get_data(),
+        new_data[case] = scipy.ndimage.affine_transform(nii_image_filename[case].get_data(),
                                                   matrix=matrix,
                                                   offset=offset,
                                                   output_shape=new_shape,

@@ -61,16 +61,19 @@ def dicom_to_nifti(dicom_input, output_file):
 
     if settings.validate_sliceincrement:
         # validate that all slices have a consistent slice increment
-        common.validate_sliceincrement(dicom_input)
-        _convert_slice_incement_inconsistencies(dicom_input)
+        try:
+            common.validate_sliceincrement(dicom_input)
+        except:
+            nii_image = _convert_slice_incement_inconsistencies(dicom_input)
 
-    # Get data; originally z,y,x, transposed to x,y,z
-    data = common.get_volume_pixeldata(dicom_input)
+    if not nii_image:
+        # Get data; originally z,y,x, transposed to x,y,z
+        data = common.get_volume_pixeldata(dicom_input)
 
-    affine = common.create_affine(dicom_input)
+        affine = common.create_affine(dicom_input)
 
-    # Convert to nifti
-    nii_image = nibabel.Nifti1Image(data, affine)
+        # Convert to nifti
+        nii_image = nibabel.Nifti1Image(data, affine)
 
     # Set TR and TE if available
     if Tag(0x0018, 0x0081) in dicom_input[0] and Tag(0x0018, 0x0081) in dicom_input[0]:
