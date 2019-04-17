@@ -20,6 +20,7 @@ import six
 
 import dicom2nifti.common as common
 import dicom2nifti.settings as settings
+import dicom2nifti.resample as resample
 from dicom2nifti.exceptions import ConversionError
 
 logger = logging.getLogger(__name__)
@@ -61,6 +62,7 @@ def dicom_to_nifti(dicom_input, output_file):
     if settings.validate_sliceincrement:
         # validate that all slices have a consistent slice increment
         common.validate_sliceincrement(dicom_input)
+        _convert_slice_incement_inconsistencies(dicom_input)
 
     # Get data; originally z,y,x, transposed to x,y,z
     data = common.get_volume_pixeldata(dicom_input)
@@ -158,3 +160,46 @@ def _remove_localizers_by_orientation(dicoms):
         return filtered_dicoms
     else:
         return six.next(six.itervalues(sorted_dicoms))
+
+def _convert_slice_incement_inconsistencies(dicom_input):
+    """
+    If there is slice increment inconsistency detected, for the moment CT images, then split the volumes into subvolumes based on the slice increment and process each volume separately using a space constructed based on the highest resolution increment
+    """
+
+    #   Estimate the "first" slice increment based on the 2 first DICOMS
+    first_image_position = numpy.array(dicom_input[0].ImagePositionPatient)
+    previous_image_position = numpy.array(dicom_input[1].ImagePositionPatient)
+    increment = first_image_position - previous_image_position
+
+    # Create as many volumes as many changes in slice increment. NB Increments might be repeated in different volumes
+    volumes = []
+    split_dicoms = [dicom_input[0], dicom_input[1]]
+    for dicom in dicom_input[2:]:
+        current_image_position = numpy.array(dicom.ImagePositionPatient)
+        current_increment = previous_image_position - current_image_position
+        if numpy.allclose(increment, current_increment, rtol=0.05, atol=0.1):
+            split_dicoms.append(dicom)
+        if not numpy.allclose(increment, current_increment, rtol=0.05, atol=0.1):
+            volumes.append((split_dicoms, increment))
+            split_dicoms = [split_dicoms[-1], dicom]
+            increment = current_increment
+        previous_image_position = current_image_position
+    volumes.append((split_dicoms, increment))
+
+    # Estimate the scan direction and highest resolution
+    direction = numpy.argmax(abs(increment))
+    highest_res = numpy.argmin([abs(v[1][direction]) for v in volumes])
+
+    # Create nibabel objects for each volume based on the correspoinding headers
+    nii_image_filename={}
+    for i, case in enumerate(volumes):
+        data = common.get_volume_pixeldata(case[0])
+        affine = common.create_affine(case[0])
+        nii_image = nibabel.Nifti1Image(data, affine)
+        key = str(abs(round(case[1][direction],2)))+'_'+str(i)
+        nii_image_filename[key] = nii_image
+
+    nifti_volume = resample._resample_inconsistent_slice_thickness(nii_image_filename, highest_res)
+
+    return nifti_volume
+

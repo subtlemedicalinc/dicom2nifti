@@ -134,3 +134,91 @@ def _create_affine(x_axis, y_axis, z_axis, image_pos, voxel_sizes):
          [x_axis[2] * voxel_sizes[0], y_axis[2] * voxel_sizes[1], z_axis[2] * voxel_sizes[2], image_pos[2]],
          [0, 0, 0, 1]])
     return affine
+
+
+def _resample_inconsistent_slice_thickness(nii_image_filename, highest_res):
+
+    """
+    Resample each volume to the highest resolution.
+    In case of gantry tilt create an orthogonal image (see _resample_gantry_tilt)
+    """
+
+    keys = list(nii_image_filename.keys())
+    first_key = [k for k in keys if '_0' in k]
+    last_key = [k for k in keys if '_'+str(len(nii_image_filename)-1) in k]
+
+    original_image = nibabel.load(nii_image_filename[keys[highest_res]])
+    origin = numpy.dot(original_image.affine, [0,0,0,1])
+    original_size = nibabel.load(nii_image_filename[last_key[0]]).shape
+    target_voxel_size = original_image.header.get_zooms()
+
+    x_axis_world = numpy.transpose(numpy.dot(original_image.affine, [[1], [0], [0], [0]]))[0, :3]
+    y_axis_world = numpy.transpose(numpy.dot(original_image.affine, [[0], [1], [0], [0]]))[0, :3]
+    x_axis_world /= numpy.linalg.norm(x_axis_world)  # normalization
+    y_axis_world /= numpy.linalg.norm(y_axis_world)  # normalization
+    z_axis_world = numpy.cross(y_axis_world, x_axis_world)  # calculate new z
+    y_axis_world = numpy.cross(x_axis_world, z_axis_world)  # recalculate y in case x and y where not perpendicular
+
+    points_image = [[0, 0, 0],
+                    [original_size[0], 0, 0],
+                    [0, original_size[1], 0],
+                    [original_size[0], original_size[1], 0],
+                    [0, 0, original_size[2]],
+                    [original_size[0], 0, original_size[2]],
+                    [0, original_size[1], original_size[2]],
+                    [original_size[0], original_size[1], original_size[2]]]
+
+    points_world = []
+
+    #
+    minaffine = nibabel.load(nii_image_filename[first_key[0]]).affine
+    maxaffine = nibabel.load(nii_image_filename[last_key[0]]).affine
+    for point in points_image[:4]:
+        points_world.append(numpy.transpose(numpy.dot(minaffine,
+                                                      [[point[0]], [point[1]], [point[2]], [1]]))[0, :3])
+    for point in points_image[4:]:
+        points_world.append(numpy.transpose(numpy.dot(maxaffine,
+                                                      [[point[0]], [point[1]], [point[2]], [1]]))[0, :3])
+
+    projections = []
+    for point in points_world:
+        projection = [numpy.dot(point, x_axis_world),
+                      numpy.dot(point, y_axis_world),
+                      numpy.dot(point, z_axis_world)]
+        projections.append(projection)
+
+    projections = numpy.array(projections)
+
+    min_projected = numpy.amin(projections, axis=0)
+    max_projected = numpy.amax(projections, axis=0)
+    new_size_mm = max_projected - min_projected
+
+    origin = min_projected[0] * x_axis_world + \
+                 min_projected[1] * y_axis_world + \
+                 min_projected[2] * z_axis_world
+
+    new_voxelsize = target_voxel_size
+    new_shape = numpy.ceil(new_size_mm / new_voxelsize).astype(numpy.int16)
+
+    new_affine = _create_affine(x_axis_world, y_axis_world, z_axis_world, origin, target_voxel_size)
+
+    #GAntry
+    new_data={}
+    for case in nii_image_filename:
+        image_affine = nibabel.load(nii_image_filename[case]).affine
+        combined_affine = numpy.linalg.inv(new_affine).dot(image_affine)
+        matrix, offset = nibabel.affines.to_matvec(numpy.linalg.inv(combined_affine))
+        new_data[case] = scipy.ndimage.affine_transform(nibabel.load(nii_image_filename[case]).get_data(),
+                                                  matrix=matrix,
+                                                  offset=offset,
+                                                  output_shape=new_shape,
+                                                  output=original_image.get_data().dtype,
+                                                  order=1,  # 0 nn, 1 bilinear, ...
+                                                  mode='constant',
+                                                  cval=-1000,
+                                                  prefilter=False)
+    resampled_image = numpy.ones(new_shape)*-1000
+    for key in new_data:
+        resampled_image[resampled_image==-1000] = new_data[key][resampled_image==-1000]
+
+    return(nibabel.Nifti1Image(resampled_image, new_affine))
