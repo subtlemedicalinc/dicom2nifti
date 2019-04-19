@@ -28,6 +28,7 @@ dest_dir = '/secure-data/business/subsidized/CENTER-TBI/slice_increment_inconsis
 
 
 trt_file = '/secure-data/business/subsidized/CENTER-TBI/slice_increment_inconsistency/TRT_inconsistency.json'
+
 with open(trt_file) as j_file:
     trt_data = json.load(j_file)
 

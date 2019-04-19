@@ -4,7 +4,7 @@ dicom2nifti
 
 @author: abrys
 """
-from dicom2nifti.settings import disable_validate_sliceincrement, \
+from dicom2nifti.settings import disable_validate_slice_increment, \
     disable_validate_orientation, \
     disable_validate_orthogonal, \
     disable_validate_slicecount, \

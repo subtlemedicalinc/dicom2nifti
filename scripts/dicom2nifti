@@ -34,10 +34,13 @@ def main(args):
                         help='directory to store the nifti files')
 
     parser.add_argument('-G', '--allow-gantry-tilting', action='store_true',
-                        help='allow the conversion of gantry tilted data (this will be reflected in the affine matrix only)')
+                        help='allow the conversion of gantry tilted data (this will be reflected in the affine matrix only unless resampling is enabled)')
 
-    parser.add_argument('-r', '--resample-gantry-tilting', action='store_true',
-                        help='resample gantry tilted data to an orthogonal image')
+    parser.add_argument('-I', '--allow-inconsistent-slice-increment', action='store_true',
+                        help='allow the conversion of inconsistent slice increment data (this will result in distorted images unless resampling is enabled)')
+
+    parser.add_argument('-r', '--resample', action='store_true',
+                        help='resample gantry tilted data to an orthogonal image or inconsistent slice increment data to a uniform image')
 
     parser.add_argument('-o', '--resample-order', type=int,
                         help='order of the spline interpolation used during the resampling (0 -> 5) [0 = NN, 1 = LIN, ....]')
@@ -71,7 +74,7 @@ def main(args):
             settings.disable_validate_orthogonal()
         if args.allow_multiframe_implicit:
             settings.disable_validate_multiframe_implicit()
-        if args.resample_gantry_tilting:
+        if args.resample:
             settings.enable_resampling()
         if args.resample_order:
             settings.set_resample_spline_interpolation_order(args.resample_order)

@@ -9,20 +9,22 @@ import nibabel.affines
 import numpy
 import scipy.ndimage
 
+from dicom2nifti import settings
 
-def resample_image(input_nifti):
+
+def resample_single_nifti(input_nifti):
     """
     Resample a gantry tilted image in place
     """
     # read the input image
     input_image = nibabel.load(input_nifti)
-    output_image = _resample_gantry_tilted(input_image)
+    output_image = resample_nifti_images([input_image])
     output_image.to_filename(input_nifti)
 
 
-def _resample_gantry_tilted(original_image):
+def resample_nifti_images(nifti_images):
     """
-    In this function we will create an orthogonal image and resample the original data to this space
+    In this function we will create an orthogonal image and resample the original images to this space
 
     In this calculation we work in 3 spaces / coordinate systems
 
@@ -43,37 +45,43 @@ def _resample_gantry_tilted(original_image):
     We now have the new xyz axis, origin and size and can create the new affine used for resampling
     """
 
-    original_size = original_image.get_data().shape
-    voxel_size = original_image.header.get_zooms()
+    # get the smallest voxelsize and use that
+    voxel_size = nifti_images[0].header.get_zooms()
+    for nifti_image in nifti_images[1:]:
+        voxel_size = numpy.minimum(voxel_size, nifti_image.header.get_zooms())
 
-    # Calculate the x and y axis as is (we assume these to be at 90 deg to each other)
-    # We will then create a new z axis that is perpendicular to the new x,y plane
-    x_axis_world = numpy.transpose(numpy.dot(original_image.affine, [[1], [0], [0], [0]]))[0, :3]
-    y_axis_world = numpy.transpose(numpy.dot(original_image.affine, [[0], [1], [0], [0]]))[0, :3]
+    x_axis_world = numpy.transpose(numpy.dot(nifti_images[0].affine, [[1], [0], [0], [0]]))[0, :3]
+    y_axis_world = numpy.transpose(numpy.dot(nifti_images[0].affine, [[0], [1], [0], [0]]))[0, :3]
     x_axis_world /= numpy.linalg.norm(x_axis_world)  # normalization
     y_axis_world /= numpy.linalg.norm(y_axis_world)  # normalization
-    z_axis_world = numpy.cross(y_axis_world, x_axis_world)  # calculate new z
+    z_axis_world = numpy.cross(y_axis_world, x_axis_world)
+    z_axis_world /= numpy.linalg.norm(z_axis_world)  # calculate new z
     y_axis_world = numpy.cross(x_axis_world, z_axis_world)  # recalculate y in case x and y where not perpendicular
+    y_axis_world /= numpy.linalg.norm(y_axis_world)
 
-    # get all corners in image coordinates
-    points_image = [[0, 0, 0],
-                    [original_size[0], 0, 0],
-                    [0, original_size[1], 0],
-                    [0, 0, original_size[2]],
-                    [original_size[0], original_size[1], 0],
-                    [original_size[0], 0, original_size[2]],
-                    [0, original_size[1], original_size[2]],
-                    [original_size[0], original_size[1], original_size[2]]]
-
-    # get all corners in world coordinates
     points_world = []
-    for point in points_image:
-        points_world.append(numpy.transpose(numpy.dot(original_image.affine,
-                                                      [[point[0]], [point[1]], [point[2]], [1]]))[0, :3])
 
-    # project all points on the axis
-    # this will give the cooridites in "mm" but with the orientation of the new image
-    # image coordinates projection = numpy.dot(point, axis)
+    for nifti_image in nifti_images:
+        original_size = nifti_image.shape
+
+        points_image = [[0, 0, 0],
+                        [original_size[0], 0, 0],
+                        [0, original_size[1], 0],
+                        [original_size[0], original_size[1], 0],
+                        [0, 0, original_size[2]],
+                        [original_size[0], 0, original_size[2]],
+                        [0, original_size[1], original_size[2]],
+                        [original_size[0], original_size[1], original_size[2]]]
+
+        minaffine = nifti_images[0].affine
+        maxaffine = nifti_images[-1].affine
+        for point in points_image[:4]:
+            points_world.append(numpy.transpose(numpy.dot(minaffine,
+                                                          [[point[0]], [point[1]], [point[2]], [1]]))[0, :3])
+        for point in points_image[4:]:
+            points_world.append(numpy.transpose(numpy.dot(maxaffine,
+                                                          [[point[0]], [point[1]], [point[2]], [1]]))[0, :3])
+
     projections = []
     for point in points_world:
         projection = [numpy.dot(point, x_axis_world),
@@ -83,39 +91,41 @@ def _resample_gantry_tilted(original_image):
 
     projections = numpy.array(projections)
 
-    # get the lowest and highest x, y, z in "projection" space
     min_projected = numpy.amin(projections, axis=0)
     max_projected = numpy.amax(projections, axis=0)
+    new_size_mm = max_projected - min_projected
 
-    # calculate the image origin in world coordinates
     origin = min_projected[0] * x_axis_world + \
              min_projected[1] * y_axis_world + \
              min_projected[2] * z_axis_world
 
-    # calculate the new image size in mm
-    new_size_mm = max_projected - min_projected
-
-    new_voxelsize = [abs(numpy.dot([voxel_size[0], 0, 0], x_axis_world)),
-                     abs(numpy.dot([0, voxel_size[1], 0], y_axis_world)),
-                     abs(numpy.dot([0, 0, voxel_size[2]], z_axis_world))]
-
+    new_voxelsize = voxel_size
     new_shape = numpy.ceil(new_size_mm / new_voxelsize).astype(numpy.int16)
 
-    new_affine = _create_affine(x_axis_world, y_axis_world, z_axis_world, origin, new_voxelsize)
+    new_affine = _create_affine(x_axis_world, y_axis_world, z_axis_world, origin, voxel_size)
 
-    combined_affine = numpy.linalg.inv(new_affine).dot(original_image.affine)
-    matrix, offset = nibabel.affines.to_matvec(numpy.linalg.inv(combined_affine))
-    new_data = scipy.ndimage.affine_transform(original_image.get_data(),
-                                              matrix=matrix,
-                                              offset=offset,
-                                              output_shape=new_shape,
-                                              output=original_image.get_data().dtype,
-                                              order=1,  # 0 nn, 1 bilinear, ...
-                                              mode='constant',
-                                              cval=-1000,
-                                              prefilter=False)
+    # Resample each image
+    resampled_images = []
+    for nifti_image in nifti_images:
+        image_affine = nifti_image.affine
+        combined_affine = numpy.linalg.inv(new_affine).dot(image_affine)
+        matrix, offset = nibabel.affines.to_matvec(numpy.linalg.inv(combined_affine))
+        resampled_images.append(scipy.ndimage.affine_transform(nifti_image.get_data(),
+                                                               matrix=matrix,
+                                                               offset=offset,
+                                                               output_shape=new_shape,
+                                                               output=nifti_image.get_data().dtype,
+                                                               order=settings.resample_spline_interpolation_order,
+                                                               mode='constant',
+                                                               cval=settings.resample_padding,
+                                                               prefilter=False))
 
-    return nibabel.Nifti1Image(new_data, new_affine)
+    combined_image_data = numpy.full(new_shape, settings.resample_padding, dtype=resampled_images[0].dtype)
+    for resampled_image in resampled_images:
+        combined_image_data[combined_image_data == settings.resample_padding] = \
+            resampled_image[combined_image_data == settings.resample_padding]
+
+    return nibabel.Nifti1Image(combined_image_data, new_affine)
 
 
 def _create_affine(x_axis, y_axis, z_axis, image_pos, voxel_sizes):
@@ -134,91 +144,3 @@ def _create_affine(x_axis, y_axis, z_axis, image_pos, voxel_sizes):
          [x_axis[2] * voxel_sizes[0], y_axis[2] * voxel_sizes[1], z_axis[2] * voxel_sizes[2], image_pos[2]],
          [0, 0, 0, 1]])
     return affine
-
-
-def _resample_inconsistent_slice_thickness(nii_image_filename, highest_res):
-
-    """
-    Resample each volume to the highest resolution.
-    In case of gantry tilt create an orthogonal image (see _resample_gantry_tilt)
-    """
-
-    keys = list(nii_image_filename.keys())
-    first_key = [k for k in keys if '_0' in k]
-    last_key = [k for k in keys if '_'+str(len(nii_image_filename)-1) in k]
-
-    original_image = nii_image_filename[keys[highest_res]]
-    origin = numpy.dot(original_image.affine, [0,0,0,1])
-    original_size = nii_image_filename[last_key[0]].shape
-    target_voxel_size = original_image.header.get_zooms()
-
-    x_axis_world = numpy.transpose(numpy.dot(original_image.affine, [[1], [0], [0], [0]]))[0, :3]
-    y_axis_world = numpy.transpose(numpy.dot(original_image.affine, [[0], [1], [0], [0]]))[0, :3]
-    x_axis_world /= numpy.linalg.norm(x_axis_world)  # normalization
-    y_axis_world /= numpy.linalg.norm(y_axis_world)  # normalization
-    z_axis_world = numpy.cross(y_axis_world, x_axis_world)  # calculate new z
-    y_axis_world = numpy.cross(x_axis_world, z_axis_world)  # recalculate y in case x and y where not perpendicular
-
-    points_image = [[0, 0, 0],
-                    [original_size[0], 0, 0],
-                    [0, original_size[1], 0],
-                    [original_size[0], original_size[1], 0],
-                    [0, 0, original_size[2]],
-                    [original_size[0], 0, original_size[2]],
-                    [0, original_size[1], original_size[2]],
-                    [original_size[0], original_size[1], original_size[2]]]
-
-    points_world = []
-
-    #
-    minaffine = nii_image_filename[first_key[0]].affine
-    maxaffine = nii_image_filename[last_key[0]].affine
-    for point in points_image[:4]:
-        points_world.append(numpy.transpose(numpy.dot(minaffine,
-                                                      [[point[0]], [point[1]], [point[2]], [1]]))[0, :3])
-    for point in points_image[4:]:
-        points_world.append(numpy.transpose(numpy.dot(maxaffine,
-                                                      [[point[0]], [point[1]], [point[2]], [1]]))[0, :3])
-
-    projections = []
-    for point in points_world:
-        projection = [numpy.dot(point, x_axis_world),
-                      numpy.dot(point, y_axis_world),
-                      numpy.dot(point, z_axis_world)]
-        projections.append(projection)
-
-    projections = numpy.array(projections)
-
-    min_projected = numpy.amin(projections, axis=0)
-    max_projected = numpy.amax(projections, axis=0)
-    new_size_mm = max_projected - min_projected
-
-    origin = min_projected[0] * x_axis_world + \
-                 min_projected[1] * y_axis_world + \
-                 min_projected[2] * z_axis_world
-
-    new_voxelsize = target_voxel_size
-    new_shape = numpy.ceil(new_size_mm / new_voxelsize).astype(numpy.int16)
-
-    new_affine = _create_affine(x_axis_world, y_axis_world, z_axis_world, origin, target_voxel_size)
-
-    #GAntry
-    new_data={}
-    for case in nii_image_filename:
-        image_affine = nii_image_filename[case].affine
-        combined_affine = numpy.linalg.inv(new_affine).dot(image_affine)
-        matrix, offset = nibabel.affines.to_matvec(numpy.linalg.inv(combined_affine))
-        new_data[case] = scipy.ndimage.affine_transform(nii_image_filename[case].get_data(),
-                                                  matrix=matrix,
-                                                  offset=offset,
-                                                  output_shape=new_shape,
-                                                  output=original_image.get_data().dtype,
-                                                  order=1,  # 0 nn, 1 bilinear, ...
-                                                  mode='constant',
-                                                  cval=-1000,
-                                                  prefilter=False)
-    resampled_image = numpy.ones(new_shape)*-1000
-    for key in new_data:
-        resampled_image[resampled_image==-1000] = new_data[key][resampled_image==-1000]
-
-    return(nibabel.Nifti1Image(resampled_image, new_affine))

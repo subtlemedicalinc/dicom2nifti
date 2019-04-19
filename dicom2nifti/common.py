@@ -6,6 +6,8 @@ dicom2nifti
 """
 from __future__ import print_function
 
+import nibabel
+
 import dicom2nifti.compressed_dicom as compressed_dicom
 import dicom2nifti.patch_pydicom_encodings
 
@@ -583,6 +585,32 @@ def is_orthogonal(dicoms, log_details=False):
     return True
 
 
+def is_orthogonal_nifti(nifti_file):
+    """
+    Validate that volume is orthonormal
+
+    :param dicoms: check that we have a volume without skewing
+    """
+    nifti_image = nibabel.load(nifti_file)
+    affine = nifti_image.affine
+
+    transformed_x = numpy.transpose(numpy.dot(affine, [[1], [0], [0], [0]]))[0][:3]
+    transformed_y = numpy.transpose(numpy.dot(affine, [[0], [1], [0], [0]]))[0][:3]
+    transformed_z = numpy.transpose(numpy.dot(affine, [[0], [0], [1], [0]]))[0][:3]
+
+    transformed_x /= numpy.linalg.norm(transformed_x)
+    transformed_y /= numpy.linalg.norm(transformed_y)
+    transformed_z /= numpy.linalg.norm(transformed_z)
+
+    perpendicular = numpy.cross(transformed_x, transformed_y)
+    perpendicular /= numpy.linalg.norm(perpendicular)
+
+    if not numpy.allclose(transformed_z, perpendicular, rtol=0.05, atol=0.05) \
+            and not numpy.allclose(transformed_z, -perpendicular, rtol=0.05, atol=0.05):
+        return False
+    return True
+
+
 def sort_dicoms(dicoms):
     """
     Sort the dicoms based om the image possition patient
@@ -607,9 +635,9 @@ def sort_dicoms(dicoms):
         return dicom_input_sorted_z
 
 
-def validate_sliceincrement(dicoms):
+def validate_slice_increment(dicoms):
     """
-    Validate that the distance between all slices is equal (of very close to)
+    Validate that the distance between all slices is equal (or very close to)
 
     :param dicoms: list of dicoms
     """
@@ -630,6 +658,26 @@ def validate_sliceincrement(dicoms):
             logger.warning('---------------------------------------------------------')
             raise ConversionValidationError('SLICE_INCREMENT_INCONSISTENT')
         previous_image_position = current_image_position
+
+
+def is_slice_increment_inconsistent(dicoms):
+    """
+    Validate that the distance between all slices is equal (or very close to)
+
+    :param dicoms: list of dicoms
+    """
+    sliceincrement_inconsistent = False
+    first_image_position = numpy.array(dicoms[0].ImagePositionPatient)
+    previous_image_position = numpy.array(dicoms[1].ImagePositionPatient)
+
+    increment = first_image_position - previous_image_position
+    for dicom_ in dicoms[2:]:
+        current_image_position = numpy.array(dicom_.ImagePositionPatient)
+        current_increment = previous_image_position - current_image_position
+        if not numpy.allclose(increment, current_increment, rtol=0.05, atol=0.1):
+            sliceincrement_inconsistent = True
+            break
+    return sliceincrement_inconsistent
 
 
 def validate_slicecount(dicoms):
