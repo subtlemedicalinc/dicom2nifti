@@ -62,7 +62,7 @@ def disable_validate_multiframe_implicit():
     validate_multiframe_implicit = False
 
 
-def enable_validate_sliceincrement():
+def enable_validate_slice_increment():
     """
     Enable the slice increment validation again (DEFAULT ENABLED)
     """

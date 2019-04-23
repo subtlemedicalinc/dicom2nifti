@@ -23,7 +23,7 @@ from dicom2nifti.exceptions import ConversionValidationError
 
 class TestConversionCommon(unittest.TestCase):
     def setUp(self):
-        dicom2nifti.enable_validate_sliceincrement()
+        dicom2nifti.enable_validate_slice_increment()
         dicom2nifti.enable_validate_slicecount()
         dicom2nifti.enable_validate_orientation()
         dicom2nifti.enable_validate_orthogonal()

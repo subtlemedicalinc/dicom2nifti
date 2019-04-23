@@ -35,12 +35,40 @@ def main():
             reoriented_file = dir_path + '_ground_truth_reoriented.nii.gz'
             # noinspection PyBroadException
             try:
-                if not os.path.isfile(output_file):
-                    dicom2nifti.dicom_series_to_nifti(dir_path, output_file, False)
-                    image_reorientation.reorient_image(output_file, reoriented_file)
+                generate_ground_truth(dir_path, output_file, reoriented_file)
             except:  # explicitly capturing everything here
                 pass
 
 
+def generate_ground_truth(dicom_directory, output_file, reoriented_file):
+    if not os.path.isfile(output_file):
+        dicom2nifti.dicom_series_to_nifti(dicom_directory, output_file, False)
+        image_reorientation.reorient_image(output_file, reoriented_file)
+
+
+def generate_inconsistent_slice_incement():
+    settings.disable_validate_orthogonal()
+    settings.disable_validate_slice_increment()
+    settings.enable_resampling()
+    settings.set_resample_padding(0)
+    settings.set_resample_spline_interpolation_order(1)
+
+    dicom_directory = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                   'tests',
+                                   'data',
+                                   'failing',
+                                   'sliceincrement',
+                                   '002')
+
+    output_file = dicom_directory + '_ground_truth.nii.gz'
+    reoriented_file = dicom_directory + '_ground_truth_reoriented.nii.gz'
+    generate_ground_truth(dicom_directory, output_file, reoriented_file)
+
+    settings.disable_resampling()
+    settings.enable_validate_slice_increment()
+    settings.enable_validate_orientation()
+
+
 if __name__ == "__main__":
     main()
+    generate_inconsistent_slice_incement()
