@@ -12,7 +12,7 @@ import unittest
 import dicom2nifti
 import tests.test_data as test_data
 from dicom2nifti.common import read_dicom_directory, \
-    validate_sliceincrement, \
+    validate_slice_increment, \
     validate_slicecount, \
     validate_orthogonal, \
     validate_orientation, \
@@ -23,16 +23,16 @@ from dicom2nifti.exceptions import ConversionValidationError
 
 class TestConversionCommon(unittest.TestCase):
     def setUp(self):
-        dicom2nifti.enable_validate_sliceincrement()
+        dicom2nifti.enable_validate_slice_increment()
         dicom2nifti.enable_validate_slicecount()
         dicom2nifti.enable_validate_orientation()
         dicom2nifti.enable_validate_orthogonal()
 
     def test_validate_sliceincrement(self):
-        validate_sliceincrement(sort_dicoms(read_dicom_directory(test_data.GE_ANATOMICAL)))
+        validate_slice_increment(sort_dicoms(read_dicom_directory(test_data.GE_ANATOMICAL)))
 
         self.assertRaises(ConversionValidationError,
-                          validate_sliceincrement,
+                          validate_slice_increment,
                           sort_dicoms(read_dicom_directory(test_data.FAILING_SLICEINCREMENT)))
 
     def test_validate_sliceincrement_disabled(self):
@@ -42,7 +42,7 @@ class TestConversionCommon(unittest.TestCase):
                               dicom_to_nifti,
                               read_dicom_directory(test_data.FAILING_SLICEINCREMENT),
                               os.path.join(tmp_output_dir, 'test.nii.gz'))
-            dicom2nifti.disable_validate_sliceincrement()
+            dicom2nifti.disable_validate_slice_increment()
             dicom_to_nifti(read_dicom_directory(test_data.FAILING_SLICEINCREMENT),
                            os.path.join(tmp_output_dir, 'test.nii.gz'))
 
@@ -103,7 +103,7 @@ class TestConversionCommon(unittest.TestCase):
         tmp_output_dir = tempfile.mkdtemp()
         try:
             dicom2nifti.disable_validate_orthogonal()  # this will also fail on this data
-            dicom2nifti.disable_validate_sliceincrement()  # this will also fail on this data
+            dicom2nifti.disable_validate_slice_increment()  # this will also fail on this data
             dicom2nifti.disable_validate_slicecount()
             self.assertRaises(ConversionValidationError,
                               dicom_to_nifti,

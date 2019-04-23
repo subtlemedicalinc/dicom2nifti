@@ -143,8 +143,8 @@ def dicom_array_to_nifti(dicom_list, output_file, reorient_nifti=True):
 
     # resampling needs to be after reorientation
     if settings.resample:
-        if not common.is_orthogonal(dicom_list):
-            resample.resample_image(results['NII_FILE'])
+        if not common.is_orthogonal_nifti(results['NII_FILE']):
+            resample.resample_single_nifti(results['NII_FILE'])
 
     return results
 

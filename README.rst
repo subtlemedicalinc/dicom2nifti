@@ -106,6 +106,36 @@ Python code:
    dicom2nifti.convert_directory(dicom_directory, output_folder)
 
 
+
+Inconsistent slice incremement
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+By default support for inconsistent slice increments is disabled.
+You can explicitly allow the images but should also use resampling (similar to the gantry tilted support)
+to avoid geometric distortions due to the inconsistent slice increments.
+You should configure the padding value and spline interpolation order
+
+Command line:
+
+.. code-block:: bash
+
+   dicom2nifti -I -r -o 1 -p -1000 input_directory output_directory
+
+
+Python code:
+
+.. code-block:: python
+
+   import dicom2nifti
+   import dicom2nifti.settings as settings
+
+   settings.disable_validate_slice_increment()
+   settings.enable_resampling()
+   settings.set_resample_spline_interpolation_order(1)
+   settings.set_resample_padding(-1000)
+
+   dicom2nifti.convert_directory(dicom_directory, output_folder)
+
+
 GE MR
 ^^^^^^
 Anatomical data should all be support.

@@ -16,10 +16,7 @@ import datetime
 from six import string_types, iteritems
 
 import dicom2nifti.compressed_dicom as compressed_dicom
-from dicom2nifti.common import read_dicom_directory
-from dicom2nifti.convert_ge import is_ge
-from dicom2nifti.convert_siemens import is_siemens
-from dicom2nifti.convert_philips import is_philips
+from dicom2nifti.common import read_dicom_directory, is_philips, is_siemens, is_ge
 
 
 def anonymize_directory(input_directory, output_directory=None):
@@ -220,4 +217,5 @@ def _anonymize_files(dicom_directory_in, dicom_directory_out, fields_to_keep):
                 logging.info("Skipping " + dicom_file_in + ", no dicom file")
 
 if __name__ == '__main__':
-    anonymize_directory('/***', '/***')
+    anonymize_directory('/***',
+                        '/***')

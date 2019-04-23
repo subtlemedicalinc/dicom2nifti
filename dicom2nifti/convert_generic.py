@@ -20,6 +20,7 @@ import six
 
 import dicom2nifti.common as common
 import dicom2nifti.settings as settings
+import dicom2nifti.resample as resample
 from dicom2nifti.exceptions import ConversionError
 
 logger = logging.getLogger(__name__)
@@ -58,17 +59,26 @@ def dicom_to_nifti(dicom_input, output_file):
     # sort the dicoms
     dicom_input = common.sort_dicoms(dicom_input)
 
-    if settings.validate_sliceincrement:
+    # validate slice increment inconsistent
+    slice_increment_inconsistent = False
+    if settings.validate_slice_increment:
         # validate that all slices have a consistent slice increment
-        common.validate_sliceincrement(dicom_input)
+        common.validate_slice_increment(dicom_input)
+    elif common.is_slice_increment_inconsistent(dicom_input):
+        slice_increment_inconsistent = True
 
-    # Get data; originally z,y,x, transposed to x,y,z
-    data = common.get_volume_pixeldata(dicom_input)
+    # if inconsistent increment and we allow resampling then do the resampling based conversion to maintain the correct geometric shape
+    if slice_increment_inconsistent and settings.resample:
+        nii_image = _convert_slice_incement_inconsistencies(dicom_input)
+    # do the normal conversion
+    else:
+        # Get data; originally z,y,x, transposed to x,y,z
+        data = common.get_volume_pixeldata(dicom_input)
 
-    affine = common.create_affine(dicom_input)
+        affine = common.create_affine(dicom_input)
 
-    # Convert to nifti
-    nii_image = nibabel.Nifti1Image(data, affine)
+        # Convert to nifti
+        nii_image = nibabel.Nifti1Image(data, affine)
 
     # Set TR and TE if available
     if Tag(0x0018, 0x0081) in dicom_input[0] and Tag(0x0018, 0x0081) in dicom_input[0]:
@@ -158,3 +168,39 @@ def _remove_localizers_by_orientation(dicoms):
         return filtered_dicoms
     else:
         return six.next(six.itervalues(sorted_dicoms))
+
+
+def _convert_slice_incement_inconsistencies(dicom_input):
+    """
+    If there is slice increment inconsistency detected, for the moment CT images, then split the volumes into subvolumes based on the slice increment and process each volume separately using a space constructed based on the highest resolution increment
+    """
+
+    #   Estimate the "first" slice increment based on the 2 first slices
+    increment = numpy.array(dicom_input[0].ImagePositionPatient) - numpy.array(dicom_input[1].ImagePositionPatient)
+
+    # Create as many volumes as many changes in slice increment. NB Increments might be repeated in different volumes
+    slice_incement_groups = []
+    current_group = [dicom_input[0], dicom_input[1]]
+    previous_image_position = numpy.array(dicom_input[1].ImagePositionPatient)
+    for dicom in dicom_input[2:]:
+        current_image_position = numpy.array(dicom.ImagePositionPatient)
+        current_increment = previous_image_position - current_image_position
+        if numpy.allclose(increment, current_increment, rtol=0.05, atol=0.1):
+            current_group.append(dicom)
+        if not numpy.allclose(increment, current_increment, rtol=0.05, atol=0.1):
+            slice_incement_groups.append(current_group)
+            current_group = [current_group[-1], dicom]
+            increment = current_increment
+        previous_image_position = current_image_position
+    slice_incement_groups.append(current_group)
+
+    # Create nibabel objects for each volume based on the corresponding headers
+    slice_incement_niftis = []
+    for dicom_slices in slice_incement_groups:
+        data = common.get_volume_pixeldata(dicom_slices)
+        affine = common.create_affine(dicom_slices)
+        slice_incement_niftis.append(nibabel.Nifti1Image(data, affine))
+
+    nifti_volume = resample.resample_nifti_images(slice_incement_niftis)
+
+    return nifti_volume

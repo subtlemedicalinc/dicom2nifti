@@ -75,7 +75,7 @@ class TestConversionDicom(unittest.TestCase):
             dicom2nifti_module.main(['-G', '-r', '-o', '1', '-p', '-1000', test_data.FAILING_ORHTOGONAL, tmp_output_dir])
             assert os.path.isfile(os.path.join(tmp_output_dir, "4_dicom2nifti.nii.gz"))
             dicom2nifti_module.main(['--allow-gantry-tilting',
-                                     '--resample-gantry-tilting',
+                                     '--resample',
                                      '--resample-order', '1',
                                      '--resample-padding', '-1000',
                                      test_data.FAILING_ORHTOGONAL,

@@ -42,6 +42,26 @@ class TestConversionGeneric(unittest.TestCase):
         finally:
             shutil.rmtree(tmp_output_dir)
 
+    def test_inconsistent_slice_increment_resampling(self):
+        tmp_output_dir = tempfile.mkdtemp()
+        try:
+            settings.disable_validate_orthogonal()
+            settings.disable_validate_slice_increment()
+            settings.enable_resampling()
+            settings.set_resample_padding(0)
+            settings.set_resample_spline_interpolation_order(1)
+            results = convert_generic.dicom_to_nifti(read_dicom_directory(test_data.FAILING_SLICEINCREMENT_2),
+                                                     os.path.join(tmp_output_dir, 'test.nii.gz'))
+            assert_compare_nifti(results['NII_FILE'],
+                                 ground_thruth_filenames(test_data.FAILING_SLICEINCREMENT_2)[0])
+            self.assertTrue(isinstance(results['NII'], nibabel.nifti1.Nifti1Image))
+
+        finally:
+            settings.disable_resampling()
+            settings.enable_validate_slice_increment()
+            settings.enable_validate_orientation()
+            shutil.rmtree(tmp_output_dir)
+
     def test_not_a_volume(self):
         tmp_output_dir = tempfile.mkdtemp()
         try:
@@ -73,7 +93,6 @@ class TestConversionGeneric(unittest.TestCase):
             assert not is_dicom_file(non_dicom2)
         finally:
             shutil.rmtree(temporary_directory)
-
 
 if __name__ == '__main__':
     unittest.main()

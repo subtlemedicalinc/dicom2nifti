@@ -39,6 +39,7 @@ def assert_compare_nifti(nifti_file_1, nifti_file_2):
 
     except:
         shutil.rmtree(work_dir)
+        raise
 
 
 def assert_compare_bval(bval_file_1, bval_file_2):

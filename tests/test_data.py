@@ -127,6 +127,9 @@ HITACHI_ANATOMICAL_IMPLICIT = os.path.join(os.path.dirname(os.path.abspath(__fil
 FAILING_SLICEINCREMENT = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                       'data', 'failing', 'sliceincrement', '001')
 
+FAILING_SLICEINCREMENT_2 = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                        'data', 'failing', 'sliceincrement', '002')
+
 FAILING_SLICECOUNT = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                   'data', 'failing', 'slicecount', '001')
 
