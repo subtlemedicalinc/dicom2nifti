@@ -542,7 +542,7 @@ def create_affine(sorted_dicoms):
          [image_orient1[2] * delta_c, image_orient2[2] * delta_r, step[2], image_pos[2]],
          [0, 0, 0, 1]]
     )
-    return affine
+    return affine, numpy.linalg.norm(step)
 
 
 def validate_orthogonal(dicoms):

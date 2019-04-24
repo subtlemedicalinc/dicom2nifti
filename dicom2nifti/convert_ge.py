@@ -99,7 +99,7 @@ def _4d_to_nifti(grouped_dicoms, output_file):
 
     logger.info('Creating affine')
     # Create the nifti header info
-    affine = common.create_affine(grouped_dicoms[0])
+    affine, slice_increment = common.create_affine(grouped_dicoms[0])
 
     logger.info('Creating nifti')
     # Convert to nifti
@@ -128,7 +128,8 @@ def _4d_to_nifti(grouped_dicoms, output_file):
                 'BVEC_FILE': bvec_file,
                 'NII': nii_image,
                 'BVAL': bval,
-                'BVEC': bvec
+                'BVEC': bvec,
+                'MAX_SLICE_INCREMENT': slice_increment
                 }
 
     return {'NII_FILE': output_file,

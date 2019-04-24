@@ -69,13 +69,13 @@ def dicom_to_nifti(dicom_input, output_file):
 
     # if inconsistent increment and we allow resampling then do the resampling based conversion to maintain the correct geometric shape
     if slice_increment_inconsistent and settings.resample:
-        nii_image = _convert_slice_incement_inconsistencies(dicom_input)
+        nii_image, max_slice_increment = _convert_slice_incement_inconsistencies(dicom_input)
     # do the normal conversion
     else:
         # Get data; originally z,y,x, transposed to x,y,z
         data = common.get_volume_pixeldata(dicom_input)
 
-        affine = common.create_affine(dicom_input)
+        affine, max_slice_increment = common.create_affine(dicom_input)
 
         # Convert to nifti
         nii_image = nibabel.Nifti1Image(data, affine)
@@ -90,7 +90,8 @@ def dicom_to_nifti(dicom_input, output_file):
         nii_image.to_filename(output_file)
 
     return {'NII_FILE': output_file,
-            'NII': nii_image}
+            'NII': nii_image,
+            'MAX_SLICE_INCREMENT': max_slice_increment}
 
 
 def _remove_duplicate_slices(dicoms):
@@ -179,12 +180,14 @@ def _convert_slice_incement_inconsistencies(dicom_input):
     increment = numpy.array(dicom_input[0].ImagePositionPatient) - numpy.array(dicom_input[1].ImagePositionPatient)
 
     # Create as many volumes as many changes in slice increment. NB Increments might be repeated in different volumes
+    max_slice_increment = 0
     slice_incement_groups = []
     current_group = [dicom_input[0], dicom_input[1]]
     previous_image_position = numpy.array(dicom_input[1].ImagePositionPatient)
     for dicom in dicom_input[2:]:
         current_image_position = numpy.array(dicom.ImagePositionPatient)
         current_increment = previous_image_position - current_image_position
+        max_slice_increment = max(max_slice_increment, numpy.linalg.norm(current_increment))
         if numpy.allclose(increment, current_increment, rtol=0.05, atol=0.1):
             current_group.append(dicom)
         if not numpy.allclose(increment, current_increment, rtol=0.05, atol=0.1):
@@ -198,9 +201,9 @@ def _convert_slice_incement_inconsistencies(dicom_input):
     slice_incement_niftis = []
     for dicom_slices in slice_incement_groups:
         data = common.get_volume_pixeldata(dicom_slices)
-        affine = common.create_affine(dicom_slices)
+        affine, _ = common.create_affine(dicom_slices)
         slice_incement_niftis.append(nibabel.Nifti1Image(data, affine))
 
     nifti_volume = resample.resample_nifti_images(slice_incement_niftis)
 
-    return nifti_volume
+    return nifti_volume, max_slice_increment

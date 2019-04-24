@@ -14,7 +14,6 @@ dicom2nifti.patch_pydicom_encodings.apply()
 import logging
 
 import pydicom.config as pydicom_config
-from pydicom.tag import Tag
 
 import dicom2nifti.common as common
 import dicom2nifti.convert_generic as convert_generic
