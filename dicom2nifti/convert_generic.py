@@ -199,11 +199,18 @@ def _convert_slice_incement_inconsistencies(dicom_input):
 
     # Create nibabel objects for each volume based on the corresponding headers
     slice_incement_niftis = []
+    slice_increments = []
+    voxel_sizes = {}
     for dicom_slices in slice_incement_groups:
         data = common.get_volume_pixeldata(dicom_slices)
         affine, _ = common.create_affine(dicom_slices)
-        slice_incement_niftis.append(nibabel.Nifti1Image(data, affine))
+        current_volume = nibabel.Nifti1Image(data, affine)
+        slice_increment = numpy.linalg.norm(current_volume.header.get_zooms())
+        voxel_sizes[slice_increment] = current_volume.header.get_zooms()
+        slice_increments.extend([slice_increment] * (len(dicom_slices)-1))
+        slice_incement_niftis.append(current_volume)
+    voxel_size = voxel_sizes[numpy.percentile(slice_increments, 10)]
 
-    nifti_volume = resample.resample_nifti_images(slice_incement_niftis)
+    nifti_volume = resample.resample_nifti_images(slice_incement_niftis, voxel_size=voxel_size)
 
     return nifti_volume, max_slice_increment

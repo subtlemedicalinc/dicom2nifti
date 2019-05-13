@@ -22,7 +22,7 @@ def resample_single_nifti(input_nifti):
     output_image.to_filename(input_nifti)
 
 
-def resample_nifti_images(nifti_images):
+def resample_nifti_images(nifti_images, voxel_size=None):
     """
     In this function we will create an orthogonal image and resample the original images to this space
 
@@ -46,9 +46,10 @@ def resample_nifti_images(nifti_images):
     """
 
     # get the smallest voxelsize and use that
-    voxel_size = nifti_images[0].header.get_zooms()
-    for nifti_image in nifti_images[1:]:
-        voxel_size = numpy.minimum(voxel_size, nifti_image.header.get_zooms())
+    if voxel_size is None:
+        voxel_size = nifti_images[0].header.get_zooms()
+        for nifti_image in nifti_images[1:]:
+            voxel_size = numpy.minimum(voxel_size, nifti_image.header.get_zooms())
 
     x_axis_world = numpy.transpose(numpy.dot(nifti_images[0].affine, [[1], [0], [0], [0]]))[0, :3]
     y_axis_world = numpy.transpose(numpy.dot(nifti_images[0].affine, [[0], [1], [0], [0]]))[0, :3]
