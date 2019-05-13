@@ -106,23 +106,20 @@ def resample_nifti_images(nifti_images, voxel_size=None):
     new_affine = _create_affine(x_axis_world, y_axis_world, z_axis_world, origin, voxel_size)
 
     # Resample each image
-    resampled_images = []
+    combined_image_data = numpy.full(new_shape, settings.resample_padding, dtype=nifti_images[0].get_data().dtype)
     for nifti_image in nifti_images:
         image_affine = nifti_image.affine
         combined_affine = numpy.linalg.inv(new_affine).dot(image_affine)
         matrix, offset = nibabel.affines.to_matvec(numpy.linalg.inv(combined_affine))
-        resampled_images.append(scipy.ndimage.affine_transform(nifti_image.get_data(),
-                                                               matrix=matrix,
-                                                               offset=offset,
-                                                               output_shape=new_shape,
-                                                               output=nifti_image.get_data().dtype,
-                                                               order=settings.resample_spline_interpolation_order,
-                                                               mode='constant',
-                                                               cval=settings.resample_padding,
-                                                               prefilter=False))
-
-    combined_image_data = numpy.full(new_shape, settings.resample_padding, dtype=resampled_images[0].dtype)
-    for resampled_image in resampled_images:
+        resampled_image = scipy.ndimage.affine_transform(nifti_image.get_data(),
+                                                         matrix=matrix,
+                                                         offset=offset,
+                                                         output_shape=new_shape,
+                                                         output=nifti_image.get_data().dtype,
+                                                         order=settings.resample_spline_interpolation_order,
+                                                         mode='constant',
+                                                         cval=settings.resample_padding,
+                                                         prefilter=False)
         combined_image_data[combined_image_data == settings.resample_padding] = \
             resampled_image[combined_image_data == settings.resample_padding]
 
