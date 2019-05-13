@@ -47,6 +47,7 @@ class TestConversionCommon(unittest.TestCase):
                            os.path.join(tmp_output_dir, 'test.nii.gz'))
 
         finally:
+            dicom2nifti.enable_validate_slice_increment()
             shutil.rmtree(tmp_output_dir)
 
     def test_validate_slicecount(self):
@@ -68,6 +69,7 @@ class TestConversionCommon(unittest.TestCase):
                            os.path.join(tmp_output_dir, 'test.nii.gz'))
 
         finally:
+            dicom2nifti.enable_validate_slicecount()
             shutil.rmtree(tmp_output_dir)
 
     def test_validate_orthogonal(self):
@@ -90,6 +92,7 @@ class TestConversionCommon(unittest.TestCase):
                            os.path.join(tmp_output_dir, 'test.nii.gz'))
 
         finally:
+            dicom2nifti.enable_validate_orthogonal()
             shutil.rmtree(tmp_output_dir)
 
     def test_validate_orientation(self):
@@ -114,6 +117,7 @@ class TestConversionCommon(unittest.TestCase):
                            os.path.join(tmp_output_dir, 'test.nii.gz'))
 
         finally:
+            dicom2nifti.enable_validate_orientation()
             shutil.rmtree(tmp_output_dir)
 
 
