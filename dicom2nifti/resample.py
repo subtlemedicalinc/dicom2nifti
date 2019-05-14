@@ -74,13 +74,8 @@ def resample_nifti_images(nifti_images, voxel_size=None):
                         [0, original_size[1], original_size[2]],
                         [original_size[0], original_size[1], original_size[2]]]
 
-        minaffine = nifti_images[0].affine
-        maxaffine = nifti_images[-1].affine
         for point in points_image[:4]:
-            points_world.append(numpy.transpose(numpy.dot(minaffine,
-                                                          [[point[0]], [point[1]], [point[2]], [1]]))[0, :3])
-        for point in points_image[4:]:
-            points_world.append(numpy.transpose(numpy.dot(maxaffine,
+            points_world.append(numpy.transpose(numpy.dot(nifti_image.affine,
                                                           [[point[0]], [point[1]], [point[2]], [1]]))[0, :3])
 
     projections = []
