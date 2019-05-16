@@ -74,7 +74,7 @@ def resample_nifti_images(nifti_images, voxel_size=None):
                         [0, original_size[1], original_size[2]],
                         [original_size[0], original_size[1], original_size[2]]]
 
-        for point in points_image[:4]:
+        for point in points_image:
             points_world.append(numpy.transpose(numpy.dot(nifti_image.affine,
                                                           [[point[0]], [point[1]], [point[2]], [1]]))[0, :3])
 
