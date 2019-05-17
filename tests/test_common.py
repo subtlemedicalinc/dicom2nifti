@@ -16,7 +16,7 @@ from dicom2nifti.common import read_dicom_directory, \
     validate_slicecount, \
     validate_orthogonal, \
     validate_orientation, \
-    sort_dicoms
+    sort_dicoms, is_slice_increment_inconsistent
 from dicom2nifti.convert_generic import dicom_to_nifti
 from dicom2nifti.exceptions import ConversionValidationError
 
@@ -28,14 +28,14 @@ class TestConversionCommon(unittest.TestCase):
         dicom2nifti.enable_validate_orientation()
         dicom2nifti.enable_validate_orthogonal()
 
-    def test_validate_sliceincrement(self):
+    def test_validate_slice_increment(self):
         validate_slice_increment(sort_dicoms(read_dicom_directory(test_data.GE_ANATOMICAL)))
 
         self.assertRaises(ConversionValidationError,
                           validate_slice_increment,
                           sort_dicoms(read_dicom_directory(test_data.FAILING_SLICEINCREMENT)))
 
-    def test_validate_sliceincrement_disabled(self):
+    def test_validate_slice_increment_disabled(self):
         tmp_output_dir = tempfile.mkdtemp()
         try:
             self.assertRaises(ConversionValidationError,
@@ -49,6 +49,12 @@ class TestConversionCommon(unittest.TestCase):
         finally:
             dicom2nifti.enable_validate_slice_increment()
             shutil.rmtree(tmp_output_dir)
+
+    def test_is_slice_increment_inconsistent(self):
+        self.assertFalse(
+            is_slice_increment_inconsistent(sort_dicoms(read_dicom_directory(test_data.GE_ANATOMICAL))))
+        self.assertTrue(
+            is_slice_increment_inconsistent(sort_dicoms(read_dicom_directory(test_data.FAILING_SLICEINCREMENT))))
 
     def test_validate_slicecount(self):
         validate_slicecount(read_dicom_directory(test_data.GE_ANATOMICAL))

@@ -677,6 +677,7 @@ def is_slice_increment_inconsistent(dicoms):
         if not numpy.allclose(increment, current_increment, rtol=0.05, atol=0.1):
             sliceincrement_inconsistent = True
             break
+        previous_image_position = current_image_position
     return sliceincrement_inconsistent
 
 
