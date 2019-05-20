@@ -66,13 +66,13 @@ def resample_nifti_images(nifti_images, voxel_size=None):
         original_size = nifti_image.shape
 
         points_image = [[0, 0, 0],
-                        [original_size[0], 0, 0],
-                        [0, original_size[1], 0],
-                        [original_size[0], original_size[1], 0],
-                        [0, 0, original_size[2]],
-                        [original_size[0], 0, original_size[2]],
-                        [0, original_size[1], original_size[2]],
-                        [original_size[0], original_size[1], original_size[2]]]
+                        [original_size[0] - 1, 0, 0],
+                        [0, original_size[1] - 1, 0],
+                        [original_size[0] - 1, original_size[1] - 1, 0],
+                        [0, 0, original_size[2] - 1],
+                        [original_size[0] - 1, 0, original_size[2] - 1],
+                        [0, original_size[1] - 1, original_size[2] - 1],
+                        [original_size[0] - 1, original_size[1] - 1, original_size[2] - 1]]
 
         for point in points_image:
             points_world.append(numpy.transpose(numpy.dot(nifti_image.affine,
@@ -96,7 +96,7 @@ def resample_nifti_images(nifti_images, voxel_size=None):
              min_projected[2] * z_axis_world
 
     new_voxelsize = voxel_size
-    new_shape = numpy.ceil(new_size_mm / new_voxelsize).astype(numpy.int16)
+    new_shape = numpy.ceil(new_size_mm / new_voxelsize).astype(numpy.int16) + 1
 
     new_affine = _create_affine(x_axis_world, y_axis_world, z_axis_world, origin, voxel_size)
 
