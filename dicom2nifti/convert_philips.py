@@ -41,6 +41,15 @@ def dicom_to_nifti(dicom_input, output_file=None):
 
     assert common.is_philips(dicom_input)
 
+    # remove duplicate slices based on position and data
+    dicom_input = convert_generic.remove_duplicate_slices(dicom_input)
+
+    # remove localizers based on image type
+    dicom_input = convert_generic.remove_localizers_by_imagetype(dicom_input)
+
+    # remove_localizers based on image orientation (only valid if slicecount is validated)
+    dicom_input = convert_generic.remove_localizers_by_orientation(dicom_input)
+
     if common.is_multiframe_dicom(dicom_input):
         _assert_explicit_vr(dicom_input)
         logger.info('Found multiframe dicom')

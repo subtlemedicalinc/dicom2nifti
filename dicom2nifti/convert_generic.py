@@ -39,13 +39,13 @@ def dicom_to_nifti(dicom_input, output_file):
         raise ConversionError('NO_DICOM_FILES_FOUND')
 
     # remove duplicate slices based on position and data
-    dicom_input = _remove_duplicate_slices(dicom_input)
+    dicom_input = remove_duplicate_slices(dicom_input)
 
     # remove localizers based on image type
-    dicom_input = _remove_localizers_by_imagetype(dicom_input)
+    dicom_input = remove_localizers_by_imagetype(dicom_input)
     if settings.validate_slicecount:
         # remove_localizers based on image orientation (only valid if slicecount is validated)
-        dicom_input = _remove_localizers_by_orientation(dicom_input)
+        dicom_input = remove_localizers_by_orientation(dicom_input)
 
         # validate all the dicom files for correct orientations
         common.validate_slicecount(dicom_input)
@@ -94,7 +94,7 @@ def dicom_to_nifti(dicom_input, output_file):
             'MAX_SLICE_INCREMENT': max_slice_increment}
 
 
-def _remove_duplicate_slices(dicoms):
+def remove_duplicate_slices(dicoms):
     """
     Search dicoms for localizers and delete them
     """
@@ -102,6 +102,10 @@ def _remove_duplicate_slices(dicoms):
 
     dicoms_dict = {}
     filtered_dicoms = []
+    # in case of multiframe this check cannot be done
+    if 'ImageOrientationPatient' not in dicoms[0]:
+        return dicoms
+
     for dicom_ in dicoms:
         if tuple(dicom_.ImagePositionPatient) not in dicoms_dict:
             dicoms_dict[tuple(dicom_.ImagePositionPatient)] = dicom_
@@ -115,7 +119,7 @@ def _remove_duplicate_slices(dicoms):
     return filtered_dicoms
 
 
-def _remove_localizers_by_imagetype(dicoms):
+def remove_localizers_by_imagetype(dicoms):
     """
     Search dicoms for localizers and delete them
     """
@@ -131,7 +135,7 @@ def _remove_localizers_by_imagetype(dicoms):
     return filtered_dicoms
 
 
-def _remove_localizers_by_orientation(dicoms):
+def remove_localizers_by_orientation(dicoms):
     """
     Removing localizers based on the orientation.
     This is needed as in some cases with ct data there are some localizer/projection type images that cannot
@@ -140,6 +144,11 @@ def _remove_localizers_by_orientation(dicoms):
     """
     orientations = []
     sorted_dicoms = {}
+
+    # in case of multiframe this check cannot be done
+    if 'ImageOrientationPatient' not in dicoms[0]:
+        return dicoms
+
     # Loop overall files and build dict
     for dicom_header in dicoms:
         # Create affine matrix (http://nipy.sourceforge.net/nibabel/dicom/dicom_orientation.html#dicom-slice-affine)

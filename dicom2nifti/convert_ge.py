@@ -7,6 +7,7 @@ dicom2nifti
 
 from __future__ import print_function
 import dicom2nifti.patch_pydicom_encodings
+import settings
 from dicom2nifti.exceptions import ConversionError
 
 dicom2nifti.patch_pydicom_encodings.apply()
@@ -40,6 +41,15 @@ def dicom_to_nifti(dicom_input, output_file=None):
     :param dicom_input: list with dicom objects
     """
     assert common.is_ge(dicom_input)
+
+    # remove duplicate slices based on position and data
+    dicom_input = convert_generic.remove_duplicate_slices(dicom_input)
+
+    # remove localizers based on image type
+    dicom_input = convert_generic.remove_localizers_by_imagetype(dicom_input)
+
+    # remove_localizers based on image orientation (only valid if slicecount is validated)
+    dicom_input = convert_generic.remove_localizers_by_orientation(dicom_input)
 
     logger.info('Reading and sorting dicom files')
     grouped_dicoms = _get_grouped_dicoms(dicom_input)

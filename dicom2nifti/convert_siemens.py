@@ -53,6 +53,15 @@ def dicom_to_nifti(dicom_input, output_file=None):
 
     assert common.is_siemens(dicom_input)
 
+    # remove duplicate slices based on position and data
+    dicom_input = convert_generic.remove_duplicate_slices(dicom_input)
+
+    # remove localizers based on image type
+    dicom_input = convert_generic.remove_localizers_by_imagetype(dicom_input)
+
+    # remove_localizers based on image orientation (only valid if slicecount is validated)
+    dicom_input = convert_generic.remove_localizers_by_orientation(dicom_input)
+
     if _is_4d(dicom_input):
         logger.info('Found sequence type: MOSAIC 4D')
         return _mosaic_4d_to_nifti(dicom_input, output_file)

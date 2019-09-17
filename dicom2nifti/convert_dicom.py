@@ -124,6 +124,7 @@ def dicom_array_to_nifti(dicom_list, output_file, reorient_nifti=True):
         raise ConversionValidationError('NON_IMAGING_DICOM_FILES')
 
     vendor = _get_vendor(dicom_list)
+
     if vendor == Vendor.GENERIC:
         results = convert_generic.dicom_to_nifti(dicom_list, output_file)
     elif vendor == Vendor.SIEMENS:
