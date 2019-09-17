@@ -6,8 +6,8 @@ dicom2nifti
 """
 
 from __future__ import print_function
+
 import dicom2nifti.patch_pydicom_encodings
-import settings
 from dicom2nifti.exceptions import ConversionError
 
 dicom2nifti.patch_pydicom_encodings.apply()
