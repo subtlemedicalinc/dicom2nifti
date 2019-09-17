@@ -81,7 +81,7 @@ def dicom_to_nifti(dicom_input, output_file):
         nii_image = nibabel.Nifti1Image(data, affine)
 
     # Set TR and TE if available
-    if Tag(0x0018, 0x0081) in dicom_input[0] and Tag(0x0018, 0x0081) in dicom_input[0]:
+    if Tag(0x0018, 0x0080) in dicom_input[0] and Tag(0x0018, 0x0081) in dicom_input[0]:
         common.set_tr_te(nii_image, float(dicom_input[0].RepetitionTime), float(dicom_input[0].EchoTime))
 
     # Save to disk
