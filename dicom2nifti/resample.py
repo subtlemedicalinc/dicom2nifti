@@ -12,14 +12,13 @@ import scipy.ndimage
 from dicom2nifti import settings
 
 
-def resample_single_nifti(input_nifti):
+def resample_single_nifti(input_image, output_nifti):
     """
     Resample a gantry tilted image in place
     """
     # read the input image
-    input_image = nibabel.load(input_nifti)
     output_image = resample_nifti_images([input_image])
-    output_image.to_filename(input_nifti)
+    output_image.to_filename(output_nifti)
 
 
 def resample_nifti_images(nifti_images, voxel_size=None):

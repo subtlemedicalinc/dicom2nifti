@@ -585,13 +585,12 @@ def is_orthogonal(dicoms, log_details=False):
     return True
 
 
-def is_orthogonal_nifti(nifti_file):
+def is_orthogonal_nifti(nifti_image):
     """
     Validate that volume is orthonormal
 
     :param dicoms: check that we have a volume without skewing
     """
-    nifti_image = nibabel.load(nifti_file)
     affine = nifti_image.affine
 
     transformed_x = numpy.transpose(numpy.dot(affine, [[1], [0], [0], [0]]))[0][:3]
