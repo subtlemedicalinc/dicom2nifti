@@ -159,7 +159,7 @@ def _mosaic_4d_to_nifti(dicom_input, output_file):
     affine = _create_affine_siemens_mosaic(dicom_input)
     logger.info('Creating nifti')
     # Convert to nifti
-    nii_image = nibabel.Nifti1Image(full_block, affine)
+    nii_image = nibabel.Nifti1Image(full_block.squeeze(), affine)
     common.set_tr_te(nii_image, float(sorted_mosaics[0].RepetitionTime), float(sorted_mosaics[0].EchoTime))
     logger.info('Saving nifti to disk')
     # Save to disk
@@ -211,7 +211,7 @@ def _classic_4d_to_nifti(grouped_dicoms, output_file):
 
     logger.info('Creating nifti')
     # Convert to nifti
-    nii_image = nibabel.Nifti1Image(full_block, affine)
+    nii_image = nibabel.Nifti1Image(full_block.squeeze(), affine)
     common.set_tr_te(nii_image, float(grouped_dicoms[0][0].RepetitionTime), float(grouped_dicoms[0][0].EchoTime))
     logger.info('Saving nifti to disk')
     # Save to disk

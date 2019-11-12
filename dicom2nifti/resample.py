@@ -117,7 +117,7 @@ def resample_nifti_images(nifti_images, voxel_size=None):
         combined_image_data[combined_image_data == settings.resample_padding] = \
             resampled_image[combined_image_data == settings.resample_padding]
 
-    return nibabel.Nifti1Image(combined_image_data, new_affine)
+    return nibabel.Nifti1Image(combined_image_data.squeeze(), new_affine)
 
 
 def _create_affine(x_axis, y_axis, z_axis, image_pos, voxel_sizes):

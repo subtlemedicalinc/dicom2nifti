@@ -80,7 +80,7 @@ def reorient_image(input_image, output_image):
     # DONE: Needs to update new_affine, so that there is no translation difference between the original
     # and created image (now there is 1-2 voxels translation)
     # print 'Creating new nifti image'
-    nibabel.nifti1.Nifti1Image(new_image, new_affine).to_filename(output_image)
+    nibabel.nifti1.Nifti1Image(new_image.squeeze(), new_affine).to_filename(output_image)
 
 
 def _reorient_4d(image):

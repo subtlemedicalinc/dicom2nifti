@@ -242,7 +242,7 @@ def _multiframe_to_nifti(dicom_input, output_file):
     logger.info('Creating nifti')
 
     # Convert to nifti
-    nii_image = nibabel.Nifti1Image(full_block, affine)
+    nii_image = nibabel.Nifti1Image(full_block.squeeze(), affine)
     timing_parameters = multiframe_dicom.SharedFunctionalGroupsSequence[0].MRTimingAndRelatedParametersSequence[0]
     first_frame = multiframe_dicom[Tag(0x5200, 0x9230)][0]
     common.set_tr_te(nii_image, float(timing_parameters.RepetitionTime),
@@ -292,7 +292,7 @@ def _singleframe_to_nifti(grouped_dicoms, output_file):
 
     logger.info('Creating nifti')
     # Convert to nifti
-    nii_image = nibabel.Nifti1Image(full_block, affine)
+    nii_image = nibabel.Nifti1Image(full_block.squeeze(), affine)
     common.set_tr_te(nii_image, float(grouped_dicoms[0][0].RepetitionTime), float(grouped_dicoms[0][0].EchoTime))
 
     if output_file is not None:
@@ -568,7 +568,7 @@ def _fix_diffusion_images(bvals, bvecs, nifti, nifti_file):
     bvecs = bvecs[:-1]
 
     # remove last elements from the nifti
-    new_nifti = nibabel.Nifti1Image(nifti.get_data()[:, :, :, :-1], nifti.affine)
+    new_nifti = nibabel.Nifti1Image(nifti.get_data()[:, :, :, :-1].squeeze(), nifti.affine)
     new_nifti.to_filename(nifti_file)
 
     return new_nifti, bvals, bvecs
