@@ -4,10 +4,6 @@ dicom2nifti
 
 @author: abrys
 """
-from __future__ import print_function
-
-import nibabel
-
 import dicom2nifti.compressed_dicom as compressed_dicom
 import dicom2nifti.patch_pydicom_encodings
 
@@ -16,7 +12,6 @@ dicom2nifti.patch_pydicom_encodings.apply()
 import os
 import struct
 
-import pydicom
 from pydicom.tag import Tag
 
 import logging
@@ -35,7 +30,7 @@ def read_dicom_directory(dicom_directory, stop_before_pixels=False):
     Read all dicom files in a given directory (stop before pixels)
 
     :type stop_before_pixels: bool
-    :type dicom_directory: six.string_types
+    :type dicom_directory: str
     :param stop_before_pixels: Should we stop reading before the pixeldata (handy if we only want header info)
     :param dicom_directory: Directory with dicom data
     :return: List of dicom objects

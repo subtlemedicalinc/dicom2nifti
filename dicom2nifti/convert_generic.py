@@ -4,8 +4,6 @@ dicom2nifti
 
 @author: abrys
 """
-
-from __future__ import print_function
 import dicom2nifti.patch_pydicom_encodings
 
 dicom2nifti.patch_pydicom_encodings.apply()
@@ -15,8 +13,6 @@ import nibabel
 import numpy
 
 from pydicom.tag import Tag
-
-import six
 
 import dicom2nifti.common as common
 import dicom2nifti.settings as settings
@@ -177,7 +173,7 @@ def remove_localizers_by_orientation(dicoms):
                 filtered_dicoms.extend(sorted_dicoms[orientation])
         return filtered_dicoms
     else:
-        return six.next(six.itervalues(sorted_dicoms))
+        return next(iter(sorted_dicoms.values()))
 
 
 def _convert_slice_incement_inconsistencies(dicom_input):

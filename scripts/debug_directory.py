@@ -23,7 +23,7 @@ class TestConversionDirectory(unittest.TestCase):
             settings.set_resample_padding(-1000)
             settings.disable_validate_slice_increment()
             settings.disable_validate_orthogonal()
-            convert_directory.convert_directory("/Users/abrys/Downloads/dicom_CT_UNKNOWN_3",
+            convert_directory.convert_directory("/Users/abrys/Downloads/test",
                                                 "/Users/abrys/Downloads")
 
         finally:
@@ -33,7 +33,7 @@ class TestConversionDirectory(unittest.TestCase):
 
         tmp_output_dir = tempfile.mkdtemp()
         try:
-            convert_directory.convert_directory("/Users/abrys/Downloads/dicom_T1_UNKNOWN_2",
+            convert_directory.convert_directory("/Users/abrys/Downloads/test",
                                                 "/Users/abrys/Downloads")
 
         finally:

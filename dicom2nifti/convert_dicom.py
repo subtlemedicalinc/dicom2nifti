@@ -4,8 +4,6 @@ dicom2nifti
 
 @author: abrys
 """
-from __future__ import print_function
-
 import logging
 
 import dicom2nifti.compressed_dicom as compressed_dicom
@@ -17,9 +15,6 @@ dicom2nifti.patch_pydicom_encodings.apply()
 import os
 import tempfile
 import shutil
-import sys
-
-from six import reraise
 
 from pydicom.tag import Tag
 
@@ -86,10 +81,7 @@ def dicom_series_to_nifti(original_dicom_directory, output_file=None, reorient_n
         return dicom_array_to_nifti(dicom_input, output_file, reorient_nifti)
 
     except AttributeError as exception:
-        reraise(
-            tp=ConversionError,
-            value=ConversionError(str(exception)),
-            tb=sys.exc_info()[2])
+        raise exception
 
     finally:
         # remove the copied data

@@ -4,9 +4,6 @@ dicom2nifti
 
 @author: abrys
 """
-
-from __future__ import print_function
-
 import dicom2nifti.patch_pydicom_encodings
 from dicom2nifti.exceptions import ConversionError
 
@@ -21,8 +18,6 @@ import nibabel
 import numpy
 
 from pydicom.tag import Tag
-
-from six import string_types
 
 import dicom2nifti.common as common
 import dicom2nifti.convert_generic as convert_generic
@@ -241,7 +236,7 @@ def _get_bvals_bvecs(grouped_dicoms):
 
         # bval can be stored both in string as number format in dicom so implement both
         # some workarounds needed for implicit transfer syntax to work
-        if isinstance(dicom_[Tag(0x0043, 0x1039)].value, string_types):  # this works for python2.7
+        if isinstance(dicom_[Tag(0x0043, 0x1039)].value, str):  # this works for python2.7
             original_bval = float(dicom_[Tag(0x0043, 0x1039)].value.split('\\')[0])
         elif isinstance(dicom_[Tag(0x0043, 0x1039)].value, bytes):  # this works for python3.o
             original_bval = float(dicom_[Tag(0x0043, 0x1039)].value.decode("utf-8").split('\\')[0])

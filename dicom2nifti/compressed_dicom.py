@@ -78,7 +78,7 @@ def is_dicom_file(filename):
     the next 4 bytes should contain DICM otherwise it is not a dicom
 
     :param filename: file to check for the DICM header block
-    :type filename: six.string_types
+    :type filename: str
     :returns: True if it is a dicom file
     """
     file_stream = open(filename, 'rb')

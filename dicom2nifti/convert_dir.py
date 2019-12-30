@@ -4,8 +4,6 @@ this module houses all the code to just convert a directory of random dicom file
 
 @author: abrys
 """
-from __future__ import print_function
-
 import dicom2nifti.compressed_dicom as compressed_dicom
 import dicom2nifti.patch_pydicom_encodings
 
@@ -20,9 +18,7 @@ import unicodedata
 from pydicom.tag import Tag
 
 import logging
-import six
 from future.builtins import bytes
-from six import iteritems
 
 import dicom2nifti.common as common
 import dicom2nifti.convert_dicom as convert_dicom
@@ -67,7 +63,7 @@ def convert_directory(dicom_directory, output_folder, compression=True, reorient
                 traceback.print_exc()
 
     # start converting one by one
-    for series_id, dicom_input in iteritems(dicom_series):
+    for series_id, dicom_input in dicom_series.items():
         base_filename = ""
         # noinspection PyBroadException
         try:
@@ -130,18 +126,14 @@ def _is_valid_imaging_dicom(dicom_header):
         return False
 
 
-def _remove_accents(filename):
+def _remove_accents(unicode_filename):
     """
     Function that will try to remove accents from a unicode string to be used in a filename.
     input filename should be either an ascii or unicode string
     """
     # noinspection PyBroadException
     try:
-        filename = filename.replace(" ", "_")
-        if isinstance(filename, type(six.u(''))):
-            unicode_filename = filename
-        else:
-            unicode_filename = six.u(filename)
+        unicode_filename = unicode_filename.replace(" ", "_")
         cleaned_filename = unicodedata.normalize('NFKD', unicode_filename).encode('ASCII', 'ignore').decode('ASCII')
 
         cleaned_filename = re.sub(r'[^\w\s-]', '', cleaned_filename.strip().lower())
@@ -150,22 +142,18 @@ def _remove_accents(filename):
         return cleaned_filename
     except:
         traceback.print_exc()
-        return filename
+        return unicode_filename
 
 
-def _remove_accents_(filename):
+def _remove_accents_(unicode_filename):
     """
     Function that will try to remove accents from a unicode string to be used in a filename.
     input filename should be either an ascii or unicode string
     """
-    if isinstance(filename, type(six.u(''))):
-        unicode_filename = filename
-    else:
-        unicode_filename = six.u(filename)
     valid_characters = bytes(b'-_.() 1234567890abcdefghijklmnopqrstuvwxyz')
     cleaned_filename = unicodedata.normalize('NFKD', unicode_filename).encode('ASCII', 'ignore')
 
-    new_filename = six.u('')
+    new_filename = ""
 
     for char_int in bytes(cleaned_filename):
         char_byte = bytes([char_int])

@@ -30,13 +30,11 @@ setup(
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Medical Science Apps.',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: POSIX :: Linux'],
-    install_requires=['six', 'future', 'nibabel', 'numpy', 'scipy', 'pydicom>=1.0.1'],
+    install_requires=['nibabel', 'numpy', 'scipy', 'pydicom>=1.3.0'],
     setup_requires=['nose', 'coverage']
 )

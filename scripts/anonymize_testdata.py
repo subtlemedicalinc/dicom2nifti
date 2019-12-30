@@ -4,8 +4,6 @@ dicom2nifti
 
 @author: abrys
 """
-from __future__ import print_function
-
 import pydicom
 import pydicom.uid
 import pydicom.dataset
@@ -13,7 +11,6 @@ import logging
 import numpy
 import os
 import datetime
-from six import string_types, iteritems
 
 import dicom2nifti.compressed_dicom as compressed_dicom
 from dicom2nifti.common import read_dicom_directory, is_philips, is_siemens, is_ge
@@ -148,7 +145,7 @@ def _anonymize_file(dicom_file_in, dicom_file_out, fields_to_keep):
     dicom_out.is_implicit_VR = dicom_in.is_implicit_VR
 
     # Add the data elements
-    for (field_key, field_value) in iteritems(fields_to_keep):
+    for field_key, field_value in fields_to_keep.items():
         logging.info(field_key)
         if field_key == (0x7fe0, 0x0010):
 
@@ -162,7 +159,7 @@ def _anonymize_file(dicom_file_in, dicom_file_out, fields_to_keep):
             dicom_out[0x7fe0, 0x0010].VR = 'OB'
         elif field_value is None:
             try:
-                if isinstance(field_key, string_types):
+                if isinstance(field_key, str):
                     if field_key in dicom_in:
                         dicom_out.add(dicom_in.data_element(field_key))
                 else:

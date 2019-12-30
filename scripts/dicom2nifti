@@ -4,21 +4,14 @@ This script is the standalone/script version of dicom2nifti
 
 @author: abrys
 """
-from __future__ import print_function
-
 import argparse
-import os
-
+# Setup the logger correctly
 import logging
+import os
+import sys
 
 import dicom2nifti.convert_dir as convert_directory
 import dicom2nifti.settings as settings
-import sys
-
-
-# Setup the logger correctly
-import logging
-import sys
 
 logger = logging.getLogger(__name__)
 handler = logging.StreamHandler(sys.stdout)

@@ -6,9 +6,6 @@ Created on Thu Aug  1 16:10:56 2013
 """
 # To ignore numpy errors:
 #     pylint: disable=E1101
-
-from __future__ import print_function
-
 import nibabel
 import numpy
 
