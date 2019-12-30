@@ -53,12 +53,6 @@ jobs:
             mkdir -p ./test-results/junit
             pytest --verbose --junitxml ./test_reports/junit/dicom2nifti_junit.xml ./tests
 
-      - run:
-          name: Run failing test manually
-          command: |
-            . venv/bin/activate
-            pytest -s ./tests/test_generic.py::TestConversionGeneric::test_inconsistent_slice_increment_resampling
-
       - store_test_results:
           path: test_reports
 
