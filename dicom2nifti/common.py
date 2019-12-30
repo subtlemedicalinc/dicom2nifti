@@ -725,3 +725,9 @@ def set_tr_te(nifti_image, repetition_time, echo_time):
     nifti_image.header.structarr['db_name'] = '?TR:%.3f TE:%d' % (repetition_time, echo_time)
 
     return nifti_image
+
+def get_nifti_data(nifti_image):
+    """
+    Function that replicates the deprecated nifti.get_data behavior
+    """
+    numpy.asanyarray(nifti_image.dataobj)

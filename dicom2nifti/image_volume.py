@@ -10,6 +10,8 @@ Created on Fri Jun  7 07:40:20 2013
 import nibabel
 import numpy
 
+from common import get_nifti_data
+
 
 class Slice(object):
     """
@@ -54,8 +56,8 @@ class ImageVolume(object):
     def __init__(self, nifti_image):
         self.nifti = nifti_image
         # assert that it is a 3D image
-        assert self.nifti.get_data().squeeze().ndim >= 3
-        self.nifti_data = self.nifti.get_data()
+        self.nifti_data = get_nifti_data(self.nifti)
+        assert self.nifti_data.squeeze().ndim >= 3
         # do some basic processing like setting dimensions and min/max values
         self.dimensions = self.nifti_data.shape
         self.axial_orientation = None
