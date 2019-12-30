@@ -5,9 +5,6 @@ this module houses all the code to just convert a directory of random dicom file
 @author: abrys
 """
 import dicom2nifti.compressed_dicom as compressed_dicom
-import dicom2nifti.patch_pydicom_encodings
-
-dicom2nifti.patch_pydicom_encodings.apply()
 
 import gc
 import os

@@ -18,3 +18,7 @@ from dicom2nifti.settings import disable_validate_slice_increment, \
     enable_resampling
 from dicom2nifti.convert_dicom import dicom_series_to_nifti
 from dicom2nifti.convert_dir import convert_directory
+
+import dicom2nifti.patch_pydicom_encodings as patch_pydicom_encodings
+patch_pydicom_encodings.apply()
+

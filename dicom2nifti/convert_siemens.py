@@ -4,10 +4,6 @@ dicom2nifti
 
 @author: abrys
 """
-import dicom2nifti.patch_pydicom_encodings
-
-dicom2nifti.patch_pydicom_encodings.apply()
-
 import os
 import re
 import traceback

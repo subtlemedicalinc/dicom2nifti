@@ -4,10 +4,7 @@ dicom2nifti
 
 @author: abrys
 """
-import dicom2nifti.patch_pydicom_encodings
 from dicom2nifti.exceptions import ConversionError
-
-dicom2nifti.patch_pydicom_encodings.apply()
 
 import itertools
 import os

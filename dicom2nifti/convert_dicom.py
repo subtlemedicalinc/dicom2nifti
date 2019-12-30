@@ -7,10 +7,7 @@ dicom2nifti
 import logging
 
 import dicom2nifti.compressed_dicom as compressed_dicom
-import dicom2nifti.patch_pydicom_encodings
 from dicom2nifti import convert_hitachi
-
-dicom2nifti.patch_pydicom_encodings.apply()
 
 import os
 import tempfile
