@@ -50,7 +50,10 @@ jobs:
           name: Run tests
           command: |
             . venv/bin/activate
+            echo $PYTHONPATH
             ls -al ./
+            export PYTHONPATH=$PWD/dicom2nifti:$PYTHONPATH
+            echo $PYTHONPATH
             mkdir -p ./test-results/junit
             pytest --verbose --junitxml ./test_reports/junit/dicom2nifti_junit.xml ./tests
 
