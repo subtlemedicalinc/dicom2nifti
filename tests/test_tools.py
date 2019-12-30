@@ -38,8 +38,7 @@ def assert_compare_nifti(nifti_file_1, nifti_file_2):
             raise Exception('dtype mismatch')
         if not numpy.allclose(get_nifti_data(nifti_1), get_nifti_data(nifti_2), rtol=0.01, atol=1):
             difference = get_nifti_data(nifti_1) - get_nifti_data(nifti_2)
-            print(numpy.max(numpy.abs(difference)))
-            raise Exception('data mismatch')
+            raise Exception('data mismatch %s ' % numpy.max(numpy.abs(difference)))
 
     except:
         shutil.rmtree(work_dir)
