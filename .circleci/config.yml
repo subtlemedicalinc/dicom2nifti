@@ -50,6 +50,7 @@ jobs:
           name: Run tests
           command: |
             . venv/bin/activate
+            ls -al ./
             mkdir -p ./test-results/junit
             pytest --verbose --junitxml ./test_reports/junit/dicom2nifti_junit.xml ./tests
 
