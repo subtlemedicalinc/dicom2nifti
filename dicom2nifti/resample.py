@@ -9,7 +9,7 @@ import nibabel.affines
 import numpy
 import scipy.ndimage
 
-from common import get_nifti_data
+from dicom2nifti.common import get_nifti_data
 from dicom2nifti import settings
 
 

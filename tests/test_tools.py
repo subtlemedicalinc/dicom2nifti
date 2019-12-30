@@ -7,7 +7,7 @@ import numpy
 import shutil
 
 import dicom2nifti.image_reorientation as image_reorientation
-from common import get_nifti_data
+from dicom2nifti.common import get_nifti_data
 
 
 def ground_thruth_filenames(input_dir):
