@@ -18,7 +18,6 @@ import unicodedata
 from pydicom.tag import Tag
 
 import logging
-from future.builtins import bytes
 
 import dicom2nifti.common as common
 import dicom2nifti.convert_dicom as convert_dicom
