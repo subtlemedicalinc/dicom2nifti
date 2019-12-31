@@ -82,7 +82,8 @@ You can explicitly allow gantry tilted data by disabling this validation.
 Standard this will result in a nifti file where the gantry tilt is captured by the affine matrix.
 We also provide the option to resample the data to an orthogonal nifti.
 For this resampling we use scipy.ndimage.interpolation.affine_transform.
-You should configure the padding value and spline interpolation order
+You should configure the padding value and spline interpolation order.
+IMPORTANT NOTE: When using the orthogonal resampling the output nifti will always be reoriented
 
 Command line:
 
