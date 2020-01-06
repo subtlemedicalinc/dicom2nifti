@@ -15,6 +15,15 @@ Python library for converting dicom files to nifti
 ---------------
  Installation
 ---------------
+
+conda:
+
+.. code-block:: bash
+
+   conda install -c conda-forge dicom2nifti
+
+pip:
+
 .. code-block:: bash
 
    pip install dicom2nifti
@@ -26,6 +35,15 @@ http://gdcm.sourceforge.net/wiki/index.php/Main_Page
 ---------------
  Updating
 ---------------
+
+conda:
+
+.. code-block:: bash
+
+   conda update dicom2nifti
+
+pip:
+
 .. code-block:: bash
 
    pip install dicom2nifti --upgrade
