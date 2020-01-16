@@ -1,0 +1,331 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dicom2nifti.resample &mdash; dicom2nifti  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> dicom2nifti
+          
+
+          
+            
+            <img src="../../_static/icometrix_logo.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">dicom2nifti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#using-dicom2nifti">Using dicom2nifti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dicom2nifti.html">dicom2nifti package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">dicom2nifti</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>dicom2nifti.resample</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dicom2nifti.resample</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">dicom2nifti</span>
+
+<span class="sd">@author: abrys</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">nibabel</span>
+<span class="kn">import</span> <span class="nn">nibabel.affines</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">scipy.ndimage</span>
+
+<span class="kn">from</span> <span class="nn">dicom2nifti</span> <span class="k">import</span> <span class="n">settings</span>
+
+
+<div class="viewcode-block" id="resample_single_nifti"><a class="viewcode-back" href="../../dicom2nifti.html#dicom2nifti.resample.resample_single_nifti">[docs]</a><span class="k">def</span> <span class="nf">resample_single_nifti</span><span class="p">(</span><span class="n">input_nifti</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Resample a gantry tilted image in place</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># read the input image</span>
+    <span class="n">input_image</span> <span class="o">=</span> <span class="n">nibabel</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">input_nifti</span><span class="p">)</span>
+    <span class="n">output_image</span> <span class="o">=</span> <span class="n">resample_nifti_images</span><span class="p">([</span><span class="n">input_image</span><span class="p">])</span>
+    <span class="n">output_image</span><span class="o">.</span><span class="n">to_filename</span><span class="p">(</span><span class="n">input_nifti</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="resample_nifti_images"><a class="viewcode-back" href="../../dicom2nifti.html#dicom2nifti.resample.resample_nifti_images">[docs]</a><span class="k">def</span> <span class="nf">resample_nifti_images</span><span class="p">(</span><span class="n">nifti_images</span><span class="p">,</span> <span class="n">voxel_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    In this function we will create an orthogonal image and resample the original images to this space</span>
+
+<span class="sd">    In this calculation we work in 3 spaces / coordinate systems</span>
+
+<span class="sd">    - original image coordinates</span>
+<span class="sd">    - world coordinates</span>
+<span class="sd">    - &quot;projected&quot; coordinates</span>
+
+<span class="sd">    This last one is a new rotated &quot;orthogonal&quot; coordinates system in mm where</span>
+<span class="sd">    x and y are perpendicular with the x and y or the image</span>
+
+<span class="sd">    We do the following steps</span>
+<span class="sd">    - calculate a new &quot;projection&quot; coordinate system</span>
+<span class="sd">    - calculate the world coordinates of all corners of the image in world coordinates</span>
+<span class="sd">    - project the world coordinates of the corners on the projection coordinate system</span>
+<span class="sd">    - calculate the min and max corners to get the orthogonal bounding box of the image in projected space</span>
+<span class="sd">    - translate the origin back to world coordinages</span>
+
+<span class="sd">    We now have the new xyz axis, origin and size and can create the new affine used for resampling</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># get the smallest voxelsize and use that</span>
+    <span class="k">if</span> <span class="n">voxel_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">voxel_size</span> <span class="o">=</span> <span class="n">nifti_images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">get_zooms</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">nifti_image</span> <span class="ow">in</span> <span class="n">nifti_images</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">voxel_size</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">voxel_size</span><span class="p">,</span> <span class="n">nifti_image</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">get_zooms</span><span class="p">())</span>
+
+    <span class="n">x_axis_world</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">nifti_images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">affine</span><span class="p">,</span> <span class="p">[[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">]]))[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">y_axis_world</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">nifti_images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">affine</span><span class="p">,</span> <span class="p">[[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">]]))[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">x_axis_world</span> <span class="o">/=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">x_axis_world</span><span class="p">)</span>  <span class="c1"># normalization</span>
+    <span class="n">y_axis_world</span> <span class="o">/=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">y_axis_world</span><span class="p">)</span>  <span class="c1"># normalization</span>
+    <span class="n">z_axis_world</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">y_axis_world</span><span class="p">,</span> <span class="n">x_axis_world</span><span class="p">)</span>
+    <span class="n">z_axis_world</span> <span class="o">/=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">z_axis_world</span><span class="p">)</span>  <span class="c1"># calculate new z</span>
+    <span class="n">y_axis_world</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">x_axis_world</span><span class="p">,</span> <span class="n">z_axis_world</span><span class="p">)</span>  <span class="c1"># recalculate y in case x and y where not perpendicular</span>
+    <span class="n">y_axis_world</span> <span class="o">/=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">y_axis_world</span><span class="p">)</span>
+
+    <span class="n">points_world</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">nifti_image</span> <span class="ow">in</span> <span class="n">nifti_images</span><span class="p">:</span>
+        <span class="n">original_size</span> <span class="o">=</span> <span class="n">nifti_image</span><span class="o">.</span><span class="n">shape</span>
+
+        <span class="n">points_image</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                        <span class="p">[</span><span class="n">original_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                        <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">original_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                        <span class="p">[</span><span class="n">original_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">original_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                        <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">original_size</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
+                        <span class="p">[</span><span class="n">original_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">original_size</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
+                        <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">original_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">original_size</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
+                        <span class="p">[</span><span class="n">original_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">original_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">original_size</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]]</span>
+
+        <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">points_image</span><span class="p">:</span>
+            <span class="n">points_world</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">nifti_image</span><span class="o">.</span><span class="n">affine</span><span class="p">,</span>
+                                                          <span class="p">[[</span><span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="p">[</span><span class="n">point</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span> <span class="p">[</span><span class="mi">1</span><span class="p">]]))[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">])</span>
+
+    <span class="n">projections</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">points_world</span><span class="p">:</span>
+        <span class="n">projection</span> <span class="o">=</span> <span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">x_axis_world</span><span class="p">),</span>
+                      <span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">y_axis_world</span><span class="p">),</span>
+                      <span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">z_axis_world</span><span class="p">)]</span>
+        <span class="n">projections</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">projection</span><span class="p">)</span>
+
+    <span class="n">projections</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">projections</span><span class="p">)</span>
+
+    <span class="n">min_projected</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="n">projections</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">max_projected</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">projections</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">new_size_mm</span> <span class="o">=</span> <span class="n">max_projected</span> <span class="o">-</span> <span class="n">min_projected</span>
+
+    <span class="n">origin</span> <span class="o">=</span> <span class="n">min_projected</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">x_axis_world</span> <span class="o">+</span> \
+             <span class="n">min_projected</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">y_axis_world</span> <span class="o">+</span> \
+             <span class="n">min_projected</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">z_axis_world</span>
+
+    <span class="n">new_voxelsize</span> <span class="o">=</span> <span class="n">voxel_size</span>
+    <span class="n">new_shape</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">new_size_mm</span> <span class="o">/</span> <span class="n">new_voxelsize</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="n">new_affine</span> <span class="o">=</span> <span class="n">_create_affine</span><span class="p">(</span><span class="n">x_axis_world</span><span class="p">,</span> <span class="n">y_axis_world</span><span class="p">,</span> <span class="n">z_axis_world</span><span class="p">,</span> <span class="n">origin</span><span class="p">,</span> <span class="n">voxel_size</span><span class="p">)</span>
+
+    <span class="c1"># Resample each image</span>
+    <span class="n">combined_image_data</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">new_shape</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">resample_padding</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">nifti_images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">nifti_image</span> <span class="ow">in</span> <span class="n">nifti_images</span><span class="p">:</span>
+        <span class="n">image_affine</span> <span class="o">=</span> <span class="n">nifti_image</span><span class="o">.</span><span class="n">affine</span>
+        <span class="n">combined_affine</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">new_affine</span><span class="p">)</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">image_affine</span><span class="p">)</span>
+        <span class="n">matrix</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">nibabel</span><span class="o">.</span><span class="n">affines</span><span class="o">.</span><span class="n">to_matvec</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">combined_affine</span><span class="p">))</span>
+        <span class="n">resampled_image</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">affine_transform</span><span class="p">(</span><span class="n">nifti_image</span><span class="o">.</span><span class="n">get_data</span><span class="p">(),</span>
+                                                         <span class="n">matrix</span><span class="o">=</span><span class="n">matrix</span><span class="p">,</span>
+                                                         <span class="n">offset</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span>
+                                                         <span class="n">output_shape</span><span class="o">=</span><span class="n">new_shape</span><span class="p">,</span>
+                                                         <span class="n">output</span><span class="o">=</span><span class="n">nifti_image</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+                                                         <span class="n">order</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">resample_spline_interpolation_order</span><span class="p">,</span>
+                                                         <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;constant&#39;</span><span class="p">,</span>
+                                                         <span class="n">cval</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">resample_padding</span><span class="p">,</span>
+                                                         <span class="n">prefilter</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">combined_image_data</span><span class="p">[</span><span class="n">combined_image_data</span> <span class="o">==</span> <span class="n">settings</span><span class="o">.</span><span class="n">resample_padding</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="n">resampled_image</span><span class="p">[</span><span class="n">combined_image_data</span> <span class="o">==</span> <span class="n">settings</span><span class="o">.</span><span class="n">resample_padding</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">nibabel</span><span class="o">.</span><span class="n">Nifti1Image</span><span class="p">(</span><span class="n">combined_image_data</span><span class="p">,</span> <span class="n">new_affine</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_create_affine</span><span class="p">(</span><span class="n">x_axis</span><span class="p">,</span> <span class="n">y_axis</span><span class="p">,</span> <span class="n">z_axis</span><span class="p">,</span> <span class="n">image_pos</span><span class="p">,</span> <span class="n">voxel_sizes</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to generate the affine matrix for a dicom series</span>
+<span class="sd">    This method was based on (http://nipy.org/nibabel/dicom/dicom_orientation.html)</span>
+
+<span class="sd">    :param sorted_dicoms: list with sorted dicom files</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Create affine matrix (http://nipy.sourceforge.net/nibabel/dicom/dicom_orientation.html#dicom-slice-affine)</span>
+
+    <span class="n">affine</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[[</span><span class="n">x_axis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">voxel_sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y_axis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">voxel_sizes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">z_axis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">voxel_sizes</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">image_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
+         <span class="p">[</span><span class="n">x_axis</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">voxel_sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y_axis</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">voxel_sizes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">z_axis</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">voxel_sizes</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">image_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>
+         <span class="p">[</span><span class="n">x_axis</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">voxel_sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y_axis</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">voxel_sizes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">z_axis</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">voxel_sizes</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">image_pos</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span>
+         <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+    <span class="k">return</span> <span class="n">affine</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016-2020, icometrix
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

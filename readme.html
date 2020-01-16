@@ -1,0 +1,379 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dicom2nifti &mdash; dicom2nifti  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="dicom2nifti package" href="dicom2nifti.html" />
+    <link rel="prev" title="Welcome to dicom2nifti’s documentation!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> dicom2nifti
+          
+
+          
+            
+            <img src="_static/icometrix_logo.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">dicom2nifti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#using-dicom2nifti">Using dicom2nifti</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#updating">Updating</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#command-line">Command line</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#from-python">From python</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#supported-data">Supported data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#gantry-tilted-ct">Gantry tilted CT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#inconsistent-slice-incremement">Inconsistent slice incremement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ge-mr">GE MR</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#siemens-mr">Siemens MR</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#philips-mr">Philips MR</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hitachi-mr">Hitachi MR</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#unsupported-data">Unsupported data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dicom2nifti.html">dicom2nifti package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">dicom2nifti</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>dicom2nifti</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/readme.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="dicom2nifti">
+<h1>dicom2nifti<a class="headerlink" href="#dicom2nifti" title="Permalink to this headline">¶</a></h1>
+<p>Python library for converting dicom files to nifti</p>
+<dl class="field-list simple">
+<dt class="field-odd">Author</dt>
+<dd class="field-odd"><p>Arne Brys</p>
+</dd>
+<dt class="field-even">Organization</dt>
+<dd class="field-even"><p><a class="reference external" href="https://www.icometrix.com">icometrix</a></p>
+</dd>
+<dt class="field-odd">Repository</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://github.com/icometrix/dicom2nifti">https://github.com/icometrix/dicom2nifti</a></p>
+</dd>
+<dt class="field-even">API documentation</dt>
+<dd class="field-even"><p><a class="reference external" href="http://dicom2nifti.readthedocs.io/en/latest">http://dicom2nifti.readthedocs.io/en/latest</a></p>
+</dd>
+</dl>
+</div>
+<div class="section" id="using-dicom2nifti">
+<h1>Using dicom2nifti<a class="headerlink" href="#using-dicom2nifti" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>conda:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda install -c conda-forge dicom2nifti
+</pre></div>
+</div>
+<p>pip:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install dicom2nifti
+</pre></div>
+</div>
+<p>To support compressed dicom formats (JPEG, JPEG2000) we use gdcmconv from GDCM.
+Please install and check that gdcmconv is available from you default path.
+<a class="reference external" href="http://gdcm.sourceforge.net/wiki/index.php/Main_Page">http://gdcm.sourceforge.net/wiki/index.php/Main_Page</a></p>
+</div>
+<div class="section" id="updating">
+<h2>Updating<a class="headerlink" href="#updating" title="Permalink to this headline">¶</a></h2>
+<p>conda:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda update dicom2nifti
+</pre></div>
+</div>
+<p>pip:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install dicom2nifti --upgrade
+</pre></div>
+</div>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="command-line">
+<h3>Command line<a class="headerlink" href="#command-line" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>dicom2nifti <span class="o">[</span>-h<span class="o">]</span> <span class="o">[</span>-G<span class="o">]</span> <span class="o">[</span>-r<span class="o">]</span> <span class="o">[</span>-o RESAMPLE_ORDER<span class="o">]</span> <span class="o">[</span>-p RESAMPLE_PADDING<span class="o">]</span> <span class="o">[</span>-M<span class="o">]</span> <span class="o">[</span>-C<span class="o">]</span> <span class="o">[</span>-R<span class="o">]</span> input_directory output_directory
+</pre></div>
+</div>
+<p>for more information</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>dicom2nifti -h
+</pre></div>
+</div>
+</div>
+<div class="section" id="from-python">
+<h3>From python<a class="headerlink" href="#from-python" title="Permalink to this headline">¶</a></h3>
+<p>Converting a directory with dicom files to nifti files</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dicom2nifti</span>
+
+<span class="n">dicom2nifti</span><span class="o">.</span><span class="n">convert_directory</span><span class="p">(</span><span class="n">dicom_directory</span><span class="p">,</span> <span class="n">output_folder</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">reorient</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Converting a directory with only 1 series to 1 nifti file</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dicom2nifti</span>
+
+<span class="n">dicom2nifti</span><span class="o">.</span><span class="n">dicom_series_to_nifti</span><span class="p">(</span><span class="n">original_dicom_directory</span><span class="p">,</span> <span class="n">output_file</span><span class="p">,</span> <span class="n">reorient_nifti</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="supported-data">
+<h2>Supported data<a class="headerlink" href="#supported-data" title="Permalink to this headline">¶</a></h2>
+<p>Most anatomical data for CT and MR should be supported as long as they are in classical dicom files.</p>
+<p>Try avoiding “Implicit VR Endian” if possible as this makes converting non anatomical (i.e. DTI, fMRI, …) much more difficult.</p>
+<p>There is some vendor specific support, more specifically for 4D imaging like fMRI and DTI/DKI</p>
+<div class="section" id="gantry-tilted-ct">
+<h3>Gantry tilted CT<a class="headerlink" href="#gantry-tilted-ct" title="Permalink to this headline">¶</a></h3>
+<p>By default support for gantry tilted ct is disabled as we validate image orthogonality.
+You can explicitly allow gantry tilted data by disabling this validation.</p>
+<p>Standard this will result in a nifti file where the gantry tilt is captured by the affine matrix.
+We also provide the option to resample the data to an orthogonal nifti.
+For this resampling we use scipy.ndimage.interpolation.affine_transform.
+You should configure the padding value and spline interpolation order.
+IMPORTANT NOTE: When using the orthogonal resampling the output nifti will always be reoriented</p>
+<p>Command line:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>dicom2nifti -G -r -o <span class="m">1</span> -p -1000 input_directory output_directory
+</pre></div>
+</div>
+<p>Python code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dicom2nifti</span>
+<span class="kn">import</span> <span class="nn">dicom2nifti.settings</span> <span class="kn">as</span> <span class="nn">settings</span>
+
+<span class="n">settings</span><span class="o">.</span><span class="n">disable_validate_orthogonal</span><span class="p">()</span>
+<span class="n">settings</span><span class="o">.</span><span class="n">enable_resampling</span><span class="p">()</span>
+<span class="n">settings</span><span class="o">.</span><span class="n">set_resample_spline_interpolation_order</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">settings</span><span class="o">.</span><span class="n">set_resample_padding</span><span class="p">(</span><span class="o">-</span><span class="mi">1000</span><span class="p">)</span>
+
+<span class="n">dicom2nifti</span><span class="o">.</span><span class="n">convert_directory</span><span class="p">(</span><span class="n">dicom_directory</span><span class="p">,</span> <span class="n">output_folder</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="inconsistent-slice-incremement">
+<h3>Inconsistent slice incremement<a class="headerlink" href="#inconsistent-slice-incremement" title="Permalink to this headline">¶</a></h3>
+<p>By default support for inconsistent slice increments is disabled.
+You can explicitly allow the images but should also use resampling (similar to the gantry tilted support)
+to avoid geometric distortions due to the inconsistent slice increments.
+You should configure the padding value and spline interpolation order</p>
+<p>Command line:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>dicom2nifti -I -r -o <span class="m">1</span> -p -1000 input_directory output_directory
+</pre></div>
+</div>
+<p>Python code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dicom2nifti</span>
+<span class="kn">import</span> <span class="nn">dicom2nifti.settings</span> <span class="kn">as</span> <span class="nn">settings</span>
+
+<span class="n">settings</span><span class="o">.</span><span class="n">disable_validate_slice_increment</span><span class="p">()</span>
+<span class="n">settings</span><span class="o">.</span><span class="n">enable_resampling</span><span class="p">()</span>
+<span class="n">settings</span><span class="o">.</span><span class="n">set_resample_spline_interpolation_order</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">settings</span><span class="o">.</span><span class="n">set_resample_padding</span><span class="p">(</span><span class="o">-</span><span class="mi">1000</span><span class="p">)</span>
+
+<span class="n">dicom2nifti</span><span class="o">.</span><span class="n">convert_directory</span><span class="p">(</span><span class="n">dicom_directory</span><span class="p">,</span> <span class="n">output_folder</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="ge-mr">
+<h3>GE MR<a class="headerlink" href="#ge-mr" title="Permalink to this headline">¶</a></h3>
+<p>Anatomical data should all be support.
+4D images like fMRI and DTI/DKI are supported.</p>
+</div>
+<div class="section" id="siemens-mr">
+<h3>Siemens MR<a class="headerlink" href="#siemens-mr" title="Permalink to this headline">¶</a></h3>
+<p>Anatomical data should all be support.
+4D images like fMRI and DTI/DKI are supported.</p>
+</div>
+<div class="section" id="philips-mr">
+<h3>Philips MR<a class="headerlink" href="#philips-mr" title="Permalink to this headline">¶</a></h3>
+<p>For classic dicom files dicom2nifti support anatomical.
+For classic dicom files 4D images like fMRI and DTI/DKI are supported.</p>
+<p>For “Philips Enhanced Dicom” there is no support for “Implicit VR Endian” transfer syntax.
+For the others we support anatomical and 4D images like fMRI and DTI/DKI.</p>
+</div>
+<div class="section" id="hitachi-mr">
+<h3>Hitachi MR<a class="headerlink" href="#hitachi-mr" title="Permalink to this headline">¶</a></h3>
+<p>Anatomical data should all be support.
+4D images like fMRI and DTI/DKI are NOT supported.
+Anyone willing to share DTI and/or fMRI dicom form Hitachi scanners please contact us.</p>
+</div>
+</div>
+<div class="section" id="unsupported-data">
+<h2>Unsupported data<a class="headerlink" href="#unsupported-data" title="Permalink to this headline">¶</a></h2>
+<p>If you encounter unsupported data you can help the development of dicom2nifti by providing a dataset. This dataset should be anonymised (but leave as much of the private fields as possible).</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="dicom2nifti.html" class="btn btn-neutral float-right" title="dicom2nifti package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to dicom2nifti’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016-2020, icometrix
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

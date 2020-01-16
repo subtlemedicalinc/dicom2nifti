@@ -1,0 +1,367 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dicom2nifti.convert_dir &mdash; dicom2nifti  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> dicom2nifti
+          
+
+          
+            
+            <img src="../../_static/icometrix_logo.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">dicom2nifti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#using-dicom2nifti">Using dicom2nifti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dicom2nifti.html">dicom2nifti package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">dicom2nifti</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>dicom2nifti.convert_dir</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dicom2nifti.convert_dir</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">this module houses all the code to just convert a directory of random dicom files</span>
+
+<span class="sd">@author: abrys</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+
+<span class="kn">import</span> <span class="nn">dicom2nifti.compressed_dicom</span> <span class="k">as</span> <span class="nn">compressed_dicom</span>
+<span class="kn">import</span> <span class="nn">dicom2nifti.patch_pydicom_encodings</span>
+
+<span class="n">dicom2nifti</span><span class="o">.</span><span class="n">patch_pydicom_encodings</span><span class="o">.</span><span class="n">apply</span><span class="p">()</span>
+
+<span class="kn">import</span> <span class="nn">gc</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">import</span> <span class="nn">unicodedata</span>
+
+<span class="kn">from</span> <span class="nn">pydicom.tag</span> <span class="k">import</span> <span class="n">Tag</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">from</span> <span class="nn">future.builtins</span> <span class="k">import</span> <span class="nb">bytes</span>
+<span class="kn">from</span> <span class="nn">six</span> <span class="k">import</span> <span class="n">iteritems</span>
+
+<span class="kn">import</span> <span class="nn">dicom2nifti.common</span> <span class="k">as</span> <span class="nn">common</span>
+<span class="kn">import</span> <span class="nn">dicom2nifti.convert_dicom</span> <span class="k">as</span> <span class="nn">convert_dicom</span>
+<span class="kn">import</span> <span class="nn">dicom2nifti.settings</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="convert_directory"><a class="viewcode-back" href="../../dicom2nifti.html#dicom2nifti.convert_dir.convert_directory">[docs]</a><span class="k">def</span> <span class="nf">convert_directory</span><span class="p">(</span><span class="n">dicom_directory</span><span class="p">,</span> <span class="n">output_folder</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">reorient</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function will order all dicom files by series and order them one by one</span>
+
+<span class="sd">    :param compression: enable or disable gzip compression</span>
+<span class="sd">    :param reorient: reorient the dicoms according to LAS orientation</span>
+<span class="sd">    :param output_folder: folder to write the nifti files to</span>
+<span class="sd">    :param dicom_directory: directory with dicom files</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># sort dicom files by series uid</span>
+    <span class="n">dicom_series</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">dicom_directory</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">dicom_file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">dicom_file</span><span class="p">)</span>
+            <span class="c1"># noinspection PyBroadException</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">compressed_dicom</span><span class="o">.</span><span class="n">is_dicom_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+                    <span class="c1"># read the dicom as fast as possible</span>
+                    <span class="c1"># (max length for SeriesInstanceUID is 64 so defer_size 100 should be ok)</span>
+
+                    <span class="n">dicom_headers</span> <span class="o">=</span> <span class="n">compressed_dicom</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span>
+                                                               <span class="n">defer_size</span><span class="o">=</span><span class="s2">&quot;1 KB&quot;</span><span class="p">,</span>
+                                                               <span class="n">stop_before_pixels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                               <span class="n">force</span><span class="o">=</span><span class="n">dicom2nifti</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">pydicom_read_force</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_valid_imaging_dicom</span><span class="p">(</span><span class="n">dicom_headers</span><span class="p">):</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Skipping: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">file_path</span><span class="p">)</span>
+                        <span class="k">continue</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Organizing: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">file_path</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">dicom_headers</span><span class="o">.</span><span class="n">SeriesInstanceUID</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dicom_series</span><span class="p">:</span>
+                        <span class="n">dicom_series</span><span class="p">[</span><span class="n">dicom_headers</span><span class="o">.</span><span class="n">SeriesInstanceUID</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">dicom_series</span><span class="p">[</span><span class="n">dicom_headers</span><span class="o">.</span><span class="n">SeriesInstanceUID</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dicom_headers</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>  <span class="c1"># Explicitly capturing all errors here to be able to continue processing all the rest</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Unable to read: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">file_path</span><span class="p">)</span>
+                <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+
+    <span class="c1"># start converting one by one</span>
+    <span class="k">for</span> <span class="n">series_id</span><span class="p">,</span> <span class="n">dicom_input</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="n">dicom_series</span><span class="p">):</span>
+        <span class="n">base_filename</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="c1"># noinspection PyBroadException</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># construct the filename for the nifti</span>
+            <span class="n">base_filename</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">if</span> <span class="s1">&#39;SeriesNumber&#39;</span> <span class="ow">in</span> <span class="n">dicom_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="n">base_filename</span> <span class="o">=</span> <span class="n">_remove_accents</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">dicom_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">SeriesNumber</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s1">&#39;SeriesDescription&#39;</span> <span class="ow">in</span> <span class="n">dicom_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">base_filename</span> <span class="o">=</span> <span class="n">_remove_accents</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">base_filename</span><span class="p">,</span>
+                                                               <span class="n">dicom_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">SeriesDescription</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="s1">&#39;SequenceName&#39;</span> <span class="ow">in</span> <span class="n">dicom_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">base_filename</span> <span class="o">=</span> <span class="n">_remove_accents</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">base_filename</span><span class="p">,</span>
+                                                               <span class="n">dicom_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">SequenceName</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="s1">&#39;ProtocolName&#39;</span> <span class="ow">in</span> <span class="n">dicom_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">base_filename</span> <span class="o">=</span> <span class="n">_remove_accents</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">base_filename</span><span class="p">,</span>
+                                                               <span class="n">dicom_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ProtocolName</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">base_filename</span> <span class="o">=</span> <span class="n">_remove_accents</span><span class="p">(</span><span class="n">dicom_input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">SeriesInstanceUID</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;--------------------------------------------&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Start converting </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">base_filename</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">compression</span><span class="p">:</span>
+                <span class="n">nifti_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="n">base_filename</span> <span class="o">+</span> <span class="s1">&#39;.nii.gz&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">nifti_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="n">base_filename</span> <span class="o">+</span> <span class="s1">&#39;.nii&#39;</span><span class="p">)</span>
+            <span class="n">convert_dicom</span><span class="o">.</span><span class="n">dicom_array_to_nifti</span><span class="p">(</span><span class="n">dicom_input</span><span class="p">,</span> <span class="n">nifti_file</span><span class="p">,</span> <span class="n">reorient</span><span class="p">)</span>
+            <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>  <span class="c1"># Explicitly capturing app exceptions here to be able to continue processing</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Unable to convert: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">base_filename</span><span class="p">)</span>
+            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span></div>
+
+
+<span class="k">def</span> <span class="nf">_is_valid_imaging_dicom</span><span class="p">(</span><span class="n">dicom_header</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function will do some basic checks to see if this is a valid imaging dicom</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># if it is philips and multiframe dicom then we assume it is ok</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">common</span><span class="o">.</span><span class="n">is_philips</span><span class="p">([</span><span class="n">dicom_header</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">common</span><span class="o">.</span><span class="n">is_multiframe_dicom</span><span class="p">([</span><span class="n">dicom_header</span><span class="p">]):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="s2">&quot;SeriesInstanceUID&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dicom_header</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="s2">&quot;InstanceNumber&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dicom_header</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="s2">&quot;ImageOrientationPatient&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dicom_header</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">dicom_header</span><span class="o">.</span><span class="n">ImageOrientationPatient</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">6</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="s2">&quot;ImagePositionPatient&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dicom_header</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">dicom_header</span><span class="o">.</span><span class="n">ImagePositionPatient</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># for all others if there is image position patient we assume it is ok</span>
+        <span class="k">if</span> <span class="n">Tag</span><span class="p">(</span><span class="mh">0x0020</span><span class="p">,</span> <span class="mh">0x0037</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dicom_header</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="k">def</span> <span class="nf">_remove_accents</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function that will try to remove accents from a unicode string to be used in a filename.</span>
+<span class="sd">    input filename should be either an ascii or unicode string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># noinspection PyBroadException</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">u</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">))):</span>
+            <span class="n">unicode_filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">unicode_filename</span> <span class="o">=</span> <span class="n">six</span><span class="o">.</span><span class="n">u</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">cleaned_filename</span> <span class="o">=</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s1">&#39;NFKD&#39;</span><span class="p">,</span> <span class="n">unicode_filename</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;ASCII&#39;</span><span class="p">,</span> <span class="s1">&#39;ignore&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ASCII&#39;</span><span class="p">)</span>
+
+        <span class="n">cleaned_filename</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[^\w\s-]&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">cleaned_filename</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+        <span class="n">cleaned_filename</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[-\s]+&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">cleaned_filename</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">cleaned_filename</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">filename</span>
+
+
+<span class="k">def</span> <span class="nf">_remove_accents_</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function that will try to remove accents from a unicode string to be used in a filename.</span>
+<span class="sd">    input filename should be either an ascii or unicode string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">u</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">))):</span>
+        <span class="n">unicode_filename</span> <span class="o">=</span> <span class="n">filename</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">unicode_filename</span> <span class="o">=</span> <span class="n">six</span><span class="o">.</span><span class="n">u</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">valid_characters</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;-_.() 1234567890abcdefghijklmnopqrstuvwxyz&#39;</span><span class="p">)</span>
+    <span class="n">cleaned_filename</span> <span class="o">=</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s1">&#39;NFKD&#39;</span><span class="p">,</span> <span class="n">unicode_filename</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;ASCII&#39;</span><span class="p">,</span> <span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+
+    <span class="n">new_filename</span> <span class="o">=</span> <span class="n">six</span><span class="o">.</span><span class="n">u</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">char_int</span> <span class="ow">in</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">cleaned_filename</span><span class="p">):</span>
+        <span class="n">char_byte</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">char_int</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">char_byte</span> <span class="ow">in</span> <span class="n">valid_characters</span><span class="p">:</span>
+            <span class="n">new_filename</span> <span class="o">+=</span> <span class="n">char_byte</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">new_filename</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016-2020, icometrix
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

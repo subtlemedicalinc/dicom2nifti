@@ -1,0 +1,351 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dicom2nifti.settings &mdash; dicom2nifti  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> dicom2nifti
+          
+
+          
+            
+            <img src="../../_static/icometrix_logo.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">dicom2nifti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html#using-dicom2nifti">Using dicom2nifti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dicom2nifti.html">dicom2nifti package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">dicom2nifti</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>dicom2nifti.settings</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dicom2nifti.settings</h1><div class="highlight"><pre>
+<span></span><span class="c1"># allow to disable validations</span>
+<span class="n">validate_slicecount</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">validate_orientation</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">validate_orthogonal</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">validate_slice_increment</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">validate_multiframe_implicit</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">pydicom_read_force</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">gdcmconv_path</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">resample</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">resample_padding</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">resample_spline_interpolation_order</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># spline interpolation order (0 nn , 1 bilinear, 3 cubic)</span>
+
+
+<div class="viewcode-block" id="disable_validate_slice_increment"><a class="viewcode-back" href="../../dicom2nifti.html#dicom2nifti.settings.disable_validate_slice_increment">[docs]</a><span class="k">def</span> <span class="nf">disable_validate_slice_increment</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Disable the validation of the slice increment.</span>
+<span class="sd">    This allows for converting data where the slice increment is not consistent.</span>
+<span class="sd">    USE WITH CAUTION!</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">validate_slice_increment</span>
+    <span class="n">validate_slice_increment</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="disable_validate_orientation"><a class="viewcode-back" href="../../dicom2nifti.html#dicom2nifti.settings.disable_validate_orientation">[docs]</a><span class="k">def</span> <span class="nf">disable_validate_orientation</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Disable the validation of the slice orientation.</span>
+<span class="sd">    This validation checks that all slices have the same orientation (are parallel).</span>
+<span class="sd">    USE WITH CAUTION!</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">validate_orientation</span>
+    <span class="n">validate_orientation</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="disable_validate_orthogonal"><a class="viewcode-back" href="../../dicom2nifti.html#dicom2nifti.settings.disable_validate_orthogonal">[docs]</a><span class="k">def</span> <span class="nf">disable_validate_orthogonal</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Disable the validation whether the volume is orthogonal (so without gantry tilting or alike).</span>
+<span class="sd">    This allows for converting gantry tilted data.</span>
+<span class="sd">    The gantry tilting will be reflected in the affine matrix and not in the data</span>
+<span class="sd">    USE WITH CAUTION!</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">validate_orthogonal</span>
+    <span class="n">validate_orthogonal</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="disable_validate_slicecount"><a class="viewcode-back" href="../../dicom2nifti.html#dicom2nifti.settings.disable_validate_slicecount">[docs]</a><span class="k">def</span> <span class="nf">disable_validate_slicecount</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Disable the validation of the minimal slice count of 4 slices.</span>
+<span class="sd">    This allows for converting data with less slices.</span>
+<span class="sd">    Usually less than 4 could be considered localizer or similar thus ignoring these scans by default</span>
+<span class="sd">    USE WITH CAUTION!</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">validate_slicecount</span>
+    <span class="n">validate_slicecount</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="disable_validate_multiframe_implicit"><a class="viewcode-back" href="../../dicom2nifti.html#dicom2nifti.settings.disable_validate_multiframe_implicit">[docs]</a><span class="k">def</span> <span class="nf">disable_validate_multiframe_implicit</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Disable the validation that checks that data is not multiframe implicit</span>
+<span class="sd">    This allows to sometimes convert Philips Multiframe with implicit transfer syntax</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">validate_multiframe_implicit</span>
+    <span class="n">validate_multiframe_implicit</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="enable_validate_slice_increment"><a class="viewcode-back" href="../../dicom2nifti.html#dicom2nifti.settings.enable_validate_slice_increment">[docs]</a><span class="k">def</span> <span class="nf">enable_validate_slice_increment</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enable the slice increment validation again (DEFAULT ENABLED)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">validate_slice_increment</span>
+    <span class="n">validate_slice_increment</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="enable_validate_orientation"><a class="viewcode-back" href="../../dicom2nifti.html#dicom2nifti.settings.enable_validate_orientation">[docs]</a><span class="k">def</span> <span class="nf">enable_validate_orientation</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enable the slice orientation validation again (DEFAULT ENABLED)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">validate_orientation</span>
+    <span class="n">validate_orientation</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="enable_validate_orthogonal"><a class="viewcode-back" href="../../dicom2nifti.html#dicom2nifti.settings.enable_validate_orthogonal">[docs]</a><span class="k">def</span> <span class="nf">enable_validate_orthogonal</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enable the validation whether the volume is orthogonal again (DEFAULT ENABLED)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">validate_orthogonal</span>
+    <span class="n">validate_orthogonal</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="enable_validate_slicecount"><a class="viewcode-back" href="../../dicom2nifti.html#dicom2nifti.settings.enable_validate_slicecount">[docs]</a><span class="k">def</span> <span class="nf">enable_validate_slicecount</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enable the validation of the minimal slice count of 4 slices again (DEFAULT ENABLED)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">validate_slicecount</span>
+    <span class="n">validate_slicecount</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="enable_validate_multiframe_implicit"><a class="viewcode-back" href="../../dicom2nifti.html#dicom2nifti.settings.enable_validate_multiframe_implicit">[docs]</a><span class="k">def</span> <span class="nf">enable_validate_multiframe_implicit</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enable the validation that checks that data is not multiframe implicit again (DEFAULT ENABLED)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">validate_multiframe_implicit</span>
+    <span class="n">validate_multiframe_implicit</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="enable_pydicom_read_force"><a class="viewcode-back" href="../../dicom2nifti.html#dicom2nifti.settings.enable_pydicom_read_force">[docs]</a><span class="k">def</span> <span class="nf">enable_pydicom_read_force</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enable the pydicom read force to try to read non conform dicom data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">pydicom_read_force</span>
+    <span class="n">pydicom_read_force</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="disable_pydicom_read_force"><a class="viewcode-back" href="../../dicom2nifti.html#dicom2nifti.settings.disable_pydicom_read_force">[docs]</a><span class="k">def</span> <span class="nf">disable_pydicom_read_force</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enable the pydicom read force to try to read non conform dicom data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">pydicom_read_force</span>
+    <span class="n">pydicom_read_force</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="enable_resampling"><a class="viewcode-back" href="../../dicom2nifti.html#dicom2nifti.settings.enable_resampling">[docs]</a><span class="k">def</span> <span class="nf">enable_resampling</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enable resampling in case of gantry tilted data (disabled by default)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">resample</span>
+    <span class="n">resample</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="disable_resampling"><a class="viewcode-back" href="../../dicom2nifti.html#dicom2nifti.settings.disable_resampling">[docs]</a><span class="k">def</span> <span class="nf">disable_resampling</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Disable resampling in case of gantry tilted data (disabled by default)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">resample</span>
+    <span class="n">resample</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="set_resample_padding"><a class="viewcode-back" href="../../dicom2nifti.html#dicom2nifti.settings.set_resample_padding">[docs]</a><span class="k">def</span> <span class="nf">set_resample_padding</span><span class="p">(</span><span class="n">padding</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set the spline interpolation padding</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">resample_padding</span>
+    <span class="n">resample_padding</span> <span class="o">=</span> <span class="n">padding</span></div>
+
+
+<div class="viewcode-block" id="set_resample_spline_interpolation_order"><a class="viewcode-back" href="../../dicom2nifti.html#dicom2nifti.settings.set_resample_spline_interpolation_order">[docs]</a><span class="k">def</span> <span class="nf">set_resample_spline_interpolation_order</span><span class="p">(</span><span class="n">order</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set the spline interpolation order used during resampling of gantry tilted data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">resample_spline_interpolation_order</span>
+    <span class="n">resample_spline_interpolation_order</span> <span class="o">=</span> <span class="n">order</span></div>
+
+
+<div class="viewcode-block" id="set_gdcmconv_path"><a class="viewcode-back" href="../../dicom2nifti.html#dicom2nifti.settings.set_gdcmconv_path">[docs]</a><span class="k">def</span> <span class="nf">set_gdcmconv_path</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set where the filepath to the gdcmconv executable (needed is it is not found in your PATH)</span>
+
+<span class="sd">    :param path: the file path to the gdcmconv executable</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">gdcmconv_path</span>
+    <span class="n">gdcmconv_path</span> <span class="o">=</span> <span class="n">path</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016-2020, icometrix
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
