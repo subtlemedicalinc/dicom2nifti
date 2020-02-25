@@ -10,7 +10,7 @@ import pydicom.config as pydicom_config
 
 import dicom2nifti.common as common
 import dicom2nifti.convert_generic as convert_generic
-from exceptions import ConversionValidationError
+from dicom2nifti.exceptions import ConversionValidationError
 
 pydicom_config.enforce_valid_values = False
 logger = logging.getLogger(__name__)
