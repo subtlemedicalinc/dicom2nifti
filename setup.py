@@ -1,17 +1,8 @@
-import subprocess
 from distutils.core import setup
 from setuptools import find_packages
 
 
-def get_git_version():
-    result = subprocess.run(['git', 'describe', '--tags'], stdout=subprocess.PIPE)
-    version_number = result.stdout.decode('utf-8')
-    version_number = version_number.replace('\n', '')
-    version_number = version_number.replace(' ', '')
-    return version_number
-
-
-version = get_git_version()
+version = "2.2.3"
 print('Starting pypi release version %s' % version)
 long_description = """
 With this package you can convert dicom images to nifti files.
