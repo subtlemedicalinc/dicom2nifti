@@ -17,7 +17,7 @@ from pydicom.tag import Tag
 import dicom2nifti.common as common
 import dicom2nifti.settings as settings
 import dicom2nifti.convert_generic as convert_generic
-from dicom2nifti.exceptions import ConversionError
+from dicom2nifti.exceptions import ConversionError, ConversionValidationError
 
 pydicom_config.enforce_valid_values = False
 logger = logging.getLogger(__name__)
@@ -43,6 +43,10 @@ def dicom_to_nifti(dicom_input, output_file=None):
 
     # remove_localizers based on image orientation (only valid if slicecount is validated)
     dicom_input = convert_generic.remove_localizers_by_orientation(dicom_input)
+
+    # if no dicoms remain raise exception
+    if not dicom_input:
+        raise ConversionValidationError('TOO_FEW_SLICES/LOCALIZER')
 
     if common.is_multiframe_dicom(dicom_input):
         _assert_explicit_vr(dicom_input)

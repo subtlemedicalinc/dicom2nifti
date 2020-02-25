@@ -10,6 +10,7 @@ import pydicom.config as pydicom_config
 
 import dicom2nifti.common as common
 import dicom2nifti.convert_generic as convert_generic
+from exceptions import ConversionValidationError
 
 pydicom_config.enforce_valid_values = False
 logger = logging.getLogger(__name__)
@@ -37,6 +38,9 @@ def dicom_to_nifti(dicom_input, output_file=None):
     # remove_localizers based on image orientation (only valid if slicecount is validated)
     dicom_input = convert_generic.remove_localizers_by_orientation(dicom_input)
 
+    # if no dicoms remain raise exception
+    if not dicom_input:
+        raise ConversionValidationError('TOO_FEW_SLICES/LOCALIZER')
     # TODO add validations and conversion for DTI and fMRI once testdata is available
 
     logger.info('Assuming anatomical data')

@@ -56,6 +56,10 @@ def dicom_to_nifti(dicom_input, output_file=None):
     # remove_localizers based on image orientation (only valid if slicecount is validated)
     dicom_input = convert_generic.remove_localizers_by_orientation(dicom_input)
 
+    # if no dicoms remain raise exception
+    if not dicom_input:
+        raise ConversionValidationError('TOO_FEW_SLICES/LOCALIZER')
+
     if _is_4d(dicom_input):
         logger.info('Found sequence type: MOSAIC 4D')
         return _mosaic_4d_to_nifti(dicom_input, output_file)
