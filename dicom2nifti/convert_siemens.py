@@ -242,36 +242,76 @@ def _classic_4d_to_nifti(grouped_dicoms, output_file):
             'NII': nii_image,
             'MAX_SLICE_INCREMENT': slice_increment}
 
-
 def _classic_get_grouped_dicoms(dicom_input):
     """
     Search all dicoms in the dicom directory, sort and validate them
 
     fast_read = True will only read the headers not the data
     """
-    # Loop overall files and build dict
+
     # Order all dicom files by InstanceNumber
-    if [d for d in dicom_input if 'InstanceNumber' in d]:
-        dicoms = sorted(dicom_input, key=lambda x: x.InstanceNumber)
-    else:
-        dicoms = common.sort_dicoms(dicom_input)
+    dicoms = sorted(dicom_input, key=lambda x: x.InstanceNumber)
 
     # now group per stack
-    grouped_dicoms = []
+    grouped_dicoms = [[]]  # list with first element a list
+    stack_index = 0
 
-    # loop over all sorted dicoms
-    stack_position_tag = Tag(0x0020, 0x0012)  # in this case it is the acquisition number
-    for index in range(0, len(dicoms)):
-        dicom_ = dicoms[index]
-        if stack_position_tag not in dicom_:
-            stack_index = 0
+    # loop over all sorted dicoms and sort them by stack
+    # for this we use the position and direction of the slices so we can detect a new stack easily
+    previous_position = None
+    previous_direction = None
+    for dicom_ in dicoms:
+        current_direction = None
+        # if the stack number decreases we moved to the next stack
+        if previous_position is not None:
+            current_direction = numpy.array(dicom_.ImagePositionPatient) - previous_position
+            current_direction = current_direction / numpy.linalg.norm(current_direction)
+        if current_direction is not None and \
+                previous_direction is not None and \
+                not numpy.allclose(current_direction, previous_direction, rtol=0.05, atol=0.05):
+            previous_position = numpy.array(dicom_.ImagePositionPatient)
+            previous_direction = None
+            stack_index += 1
         else:
-            stack_index = dicom_[stack_position_tag].value - 1
-        while len(grouped_dicoms) <= stack_index:
+            previous_position = numpy.array(dicom_.ImagePositionPatient)
+            previous_direction = current_direction
+
+        if stack_index >= len(grouped_dicoms):
             grouped_dicoms.append([])
         grouped_dicoms[stack_index].append(dicom_)
 
     return grouped_dicoms
+
+# old function that was replaced by the new one for icometrix/dicom2nifti#70 will keep it for now
+# def _classic_get_grouped_dicoms(dicom_input):
+#     """
+#     Search all dicoms in the dicom directory, sort and validate them
+#
+#     fast_read = True will only read the headers not the data
+#     """
+#     # Loop overall files and build dict
+#     # Order all dicom files by InstanceNumber
+#     if [d for d in dicom_input if 'InstanceNumber' in d]:
+#         dicoms = sorted(dicom_input, key=lambda x: x.InstanceNumber)
+#     else:
+#         dicoms = common.sort_dicoms(dicom_input)
+#
+#     # now group per stack
+#     grouped_dicoms = []
+#
+#     # loop over all sorted dicoms
+#     stack_position_tag = Tag(0x0020, 0x0012)  # in this case it is the acquisition number
+#     for index in range(0, len(dicoms)):
+#         dicom_ = dicoms[index]
+#         if stack_position_tag not in dicom_:
+#             stack_index = 0
+#         else:
+#             stack_index = dicom_[stack_position_tag].value - 1
+#         while len(grouped_dicoms) <= stack_index:
+#             grouped_dicoms.append([])
+#         grouped_dicoms[stack_index].append(dicom_)
+#
+#     return grouped_dicoms
 
 
 def _classic_get_full_block(grouped_dicoms):
