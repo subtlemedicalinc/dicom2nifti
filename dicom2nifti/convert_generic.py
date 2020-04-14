@@ -13,7 +13,7 @@ from pydicom.tag import Tag
 import dicom2nifti.common as common
 import dicom2nifti.settings as settings
 import dicom2nifti.resample as resample
-from dicom2nifti.exceptions import ConversionError
+from dicom2nifti.exceptions import ConversionError, ConversionValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +35,12 @@ def dicom_to_nifti(dicom_input, output_file):
 
     # remove localizers based on image type
     dicom_input = remove_localizers_by_imagetype(dicom_input)
+    # if no dicoms remain we should raise exception
+    if len(dicom_input) <= 1:
+        raise ConversionValidationError('TOO_FEW_SLICES/LOCALIZER')
+
     if settings.validate_slicecount:
+        common.validate_slicecount(dicom_input)
         # remove_localizers based on image orientation (only valid if slicecount is validated)
         dicom_input = remove_localizers_by_orientation(dicom_input)
 
