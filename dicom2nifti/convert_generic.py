@@ -36,7 +36,7 @@ def dicom_to_nifti(dicom_input, output_file):
     # remove localizers based on image type
     dicom_input = remove_localizers_by_imagetype(dicom_input)
     # if no dicoms remain we should raise exception
-    if len(dicom_input) <= 1:
+    if len(dicom_input) < 1:
         raise ConversionValidationError('TOO_FEW_SLICES/LOCALIZER')
 
     if settings.validate_slicecount:
