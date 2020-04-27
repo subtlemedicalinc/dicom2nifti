@@ -129,12 +129,12 @@ def dicom_array_to_nifti(dicom_list, output_file, reorient_nifti=True):
 
     # do image reorientation if needed
     if reorient_nifti or settings.resample:
-        image_reorientation.reorient_image(results['NII'], results['NII_FILE'])
+        results['NII'] = image_reorientation.reorient_image(results['NII'], results['NII_FILE'])
 
     # resampling needs to be after reorientation
     if settings.resample:
         if not common.is_orthogonal_nifti(results['NII']):
-            resample.resample_single_nifti(results['NII'], results['NII_FILE'])
+            results['NII'] = resample.resample_single_nifti(results['NII'], results['NII_FILE'])
 
     return results
 

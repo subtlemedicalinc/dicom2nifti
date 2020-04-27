@@ -20,6 +20,7 @@ def resample_single_nifti(input_image, output_nifti):
     # read the input image
     output_image = resample_nifti_images([input_image])
     output_image.to_filename(output_nifti)
+    return output_image
 
 
 def resample_nifti_images(nifti_images, voxel_size=None):
