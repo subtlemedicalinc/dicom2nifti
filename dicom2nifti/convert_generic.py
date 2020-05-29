@@ -215,7 +215,10 @@ def _convert_slice_incement_inconsistencies(dicom_input):
         voxel_sizes['%.5f' % slice_increment] = current_volume.header.get_zooms()
         slice_increments.extend([slice_increment] * (len(dicom_slices)-1))
         slice_incement_niftis.append(current_volume)
-    voxel_size = voxel_sizes['%.5f' % numpy.percentile(slice_increments, 10)]
+
+    tenth_percentile_incement = numpy.percentile(slice_increments, 15)
+    most_used_increment = min(slice_increments, key=lambda x:abs(x-tenth_percentile_incement))
+    voxel_size = voxel_sizes['%.5f' % most_used_increment]
 
     nifti_volume = resample.resample_nifti_images(slice_incement_niftis, voxel_size=voxel_size)
 
