@@ -651,6 +651,30 @@ def validate_slice_increment(dicoms):
         previous_image_position = current_image_position
 
 
+def validate_instance_number(dicoms):
+    """
+    Validate that the instance number is consistent through all slices
+
+    :param dicoms: list of dicoms
+    """
+    if "InstanceNumber" not in dicoms[0]:
+        return
+    first_instance_number = numpy.array(dicoms[0].InstanceNumber)
+    previous_instance_number = numpy.array(dicoms[1].InstanceNumber)
+
+    instance_number_increment = first_instance_number - previous_instance_number
+    for dicom_ in dicoms[2:]:
+        current_instance_number = numpy.array(dicom_.InstanceNumber)
+        current_instance_number_increment = previous_instance_number - current_instance_number
+        if not instance_number_increment == current_instance_number_increment:
+            logger.warning('Instance Number not consistent through all slices')
+            logger.warning('---------------------------------------------------------')
+            logger.warning('%s %s' % (previous_instance_number, current_instance_number))
+            logger.warning('---------------------------------------------------------')
+            raise ConversionValidationError('INSTANCE_NUMBER_INCONSISTENT')
+        previous_instance_number = current_instance_number
+
+
 def is_slice_increment_inconsistent(dicoms):
     """
     Validate that the distance between all slices is equal (or very close to)

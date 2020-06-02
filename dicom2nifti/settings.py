@@ -3,6 +3,7 @@ validate_slicecount = True
 validate_orientation = True
 validate_orthogonal = True
 validate_slice_increment = True
+validate_instance_number = False
 validate_multiframe_implicit = True
 pydicom_read_force = False
 gdcmconv_path = None
@@ -19,6 +20,16 @@ def disable_validate_slice_increment():
     """
     global validate_slice_increment
     validate_slice_increment = False
+
+
+def disable_validate_instance_number():
+    """
+    Disable the validation of the slice increment.
+    This allows for converting data where the slice increment is not consistent.
+    USE WITH CAUTION!
+    """
+    global validate_instance_number
+    validate_instance_number = False
 
 
 def disable_validate_orientation():
@@ -68,6 +79,14 @@ def enable_validate_slice_increment():
     """
     global validate_slice_increment
     validate_slice_increment = True
+
+
+def enable_validate_instance_number():
+    """
+    Enable the slice increment validation again (DEFAULT ENABLED)
+    """
+    global validate_instance_number
+    validate_instance_number = True
 
 
 def enable_validate_orientation():

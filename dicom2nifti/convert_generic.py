@@ -64,6 +64,11 @@ def dicom_to_nifti(dicom_input, output_file):
     elif common.is_slice_increment_inconsistent(dicom_input):
         slice_increment_inconsistent = True
 
+    if settings.validate_instance_number:
+        # validate that all slices have a consistent instance_number
+        common.validate_instance_number(dicom_input)
+
+
     # if inconsistent increment and we allow resampling then do the resampling based conversion to maintain the correct geometric shape
     if slice_increment_inconsistent and settings.resample:
         nii_image, max_slice_increment = _convert_slice_incement_inconsistencies(dicom_input)
