@@ -78,6 +78,7 @@ def reorient_image(input_image, output_image):
     # and created image (now there is 1-2 voxels translation)
     # print 'Creating new nifti image'
     output = nibabel.nifti1.Nifti1Image(new_image.squeeze(), new_affine)
+    output.header.set_xyzt_units(2)  # set units for xyz (leave t as unknown)
     output.to_filename(output_image)
     return output
 

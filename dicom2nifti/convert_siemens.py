@@ -162,6 +162,7 @@ def _mosaic_4d_to_nifti(dicom_input, output_file):
     logger.info('Saving nifti to disk')
     # Save to disk
     if output_file is not None:
+        nii_image.header.set_xyzt_units(2)  # set units for xyz (leave t as unknown)
         nii_image.to_filename(output_file)
 
     if _is_diffusion_imaging(dicom_input[0]):
@@ -214,6 +215,7 @@ def _classic_4d_to_nifti(grouped_dicoms, output_file):
     logger.info('Saving nifti to disk')
     # Save to disk
     if output_file is not None:
+        nii_image.header.set_xyzt_units(2)  # set units for xyz (leave t as unknown)
         nii_image.to_filename(output_file)
 
     if _is_diffusion_imaging(grouped_dicoms[0][0]):

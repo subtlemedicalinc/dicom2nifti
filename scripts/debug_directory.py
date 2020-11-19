@@ -22,9 +22,10 @@ class TestConversionDirectory(unittest.TestCase):
             settings.set_resample_spline_interpolation_order(1)
             settings.set_resample_padding(-1000)
             settings.disable_validate_slice_increment()
-            settings.disable_validate_orthogonal()
-            convert_directory.convert_directory("/Users/abrys/Downloads/test",
-                                                "/Users/abrys/Downloads")
+            settings.enable_validate_instance_number()
+            #settings.disable_validate_orthogonal()
+            convert_directory.convert_directory("/Users/abrys/Downloads/2961511976/1315141970_20200407",
+                                                "/Users/abrys/Downloads/2961511976/1315141970_20200407")
 
         finally:
             shutil.rmtree(tmp_output_dir)
@@ -33,7 +34,9 @@ class TestConversionDirectory(unittest.TestCase):
 
         tmp_output_dir = tempfile.mkdtemp()
         try:
-            convert_directory.convert_directory("/Users/abrys/Downloads/test",
+            import pydicom
+            #headers = pydicom.read_file("/Users/abrys/Downloads/failing_cases/test.dcm")
+            convert_directory.convert_directory("/Users/abrys/Downloads/inconsistent_slice_increment2",
                                                 "/Users/abrys/Downloads")
 
         finally:
