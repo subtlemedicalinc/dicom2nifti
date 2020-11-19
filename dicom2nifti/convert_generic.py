@@ -89,6 +89,7 @@ def dicom_to_nifti(dicom_input, output_file):
     # Save to disk
     if output_file is not None:
         logger.info('Saving nifti to disk %s' % output_file)
+        nii_image.header.set_slope_inter(1, 0)
         nii_image.header.set_xyzt_units(2)  # set units for xyz (leave t as unknown)
         nii_image.to_filename(output_file)
 

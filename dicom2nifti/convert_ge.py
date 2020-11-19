@@ -111,7 +111,8 @@ def _4d_to_nifti(grouped_dicoms, output_file):
     logger.info('Saving nifti to disk %s' % output_file)
     # Save to disk
     if output_file is not None:
-        nii_image.header.set_xyzt_units(2) # set units for xyz (leave t as unknown)
+        nii_image.header.set_slope_inter(1, 0)
+        nii_image.header.set_xyzt_units(2)  # set units for xyz (leave t as unknown)
         nii_image.to_filename(output_file)
 
     if _is_diffusion_imaging(grouped_dicoms):

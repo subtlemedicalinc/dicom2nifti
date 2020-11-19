@@ -19,6 +19,7 @@ def resample_single_nifti(input_image, output_nifti):
     """
     # read the input image
     output_image = resample_nifti_images([input_image])
+    output_image.header.set_slope_inter(1, 0)
     output_image.header.set_xyzt_units(2)  # set units for xyz (leave t as unknown)
     output_image.to_filename(output_nifti)
     return output_image
