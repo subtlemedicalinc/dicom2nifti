@@ -34,7 +34,7 @@ def reorient_image(input_image, output_image):
     # print 'Reorganizing data'
     if image.nifti_data.squeeze().ndim == 4:
         new_image = _reorient_4d(image)
-    elif image.nifti_data.squeeze().ndim == 3:
+    elif image.nifti_data.squeeze().ndim == 3 or image.nifti_data.ndim == 3:
         new_image = _reorient_3d(image)
     else:
         raise Exception('Only 3d and 4d images are supported')

@@ -56,8 +56,14 @@ class ImageVolume(object):
     def __init__(self, nifti_image):
         self.nifti = nifti_image
         # assert that it is a 3D image
-        self.nifti_data = get_nifti_data(self.nifti)
-        assert self.nifti_data.squeeze().ndim >= 3
+        self.nifti_data = get_nifti_data(self.nifti).squeeze()
+        # if only 1 slice we need to make it a 3D volume
+        if self.nifti_data.ndim == 2:
+            self.nifti_data = numpy.expand_dims(self.nifti_data,2)
+
+        if self.nifti_data.ndim != 3:
+            assert self.nifti_data.ndim >= 3
+
         # do some basic processing like setting dimensions and min/max values
         self.dimensions = self.nifti_data.shape
         self.axial_orientation = None
@@ -110,7 +116,7 @@ class ImageVolume(object):
 
     def __get_raw_slice__(self, slice_number, slice_orientation, time_point=0):
         # Take the slice out of one of the timepoints of a 4 d nifti
-        if len(self.nifti_data.squeeze().shape) >= 4:
+        if len(self.nifti_data.shape) >= 4:
             if slice_orientation.normal_component == 0:
                 slice_data = self.nifti_data[slice_number, :, :, time_point]
             elif slice_orientation.normal_component == 1:

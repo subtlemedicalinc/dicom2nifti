@@ -543,6 +543,9 @@ def validate_orthogonal(dicoms):
 
     :param dicoms: check that we have a volume without skewing
     """
+    # if only one slice we do not need this check
+    if len(dicoms) == 1:
+        return
     if not is_orthogonal(dicoms, log_details=True):
         raise ConversionValidationError('NON_CUBICAL_IMAGE/GANTRY_TILT')
 
@@ -632,6 +635,11 @@ def validate_slice_increment(dicoms):
 
     :param dicoms: list of dicoms
     """
+
+    # if only one slice we do not need to run the checks
+    if len(dicoms) == 1:
+        return
+
     first_image_position = numpy.array(dicoms[0].ImagePositionPatient)
     previous_image_position = numpy.array(dicoms[1].ImagePositionPatient)
 
@@ -681,6 +689,8 @@ def is_slice_increment_inconsistent(dicoms):
 
     :param dicoms: list of dicoms
     """
+    if len(dicoms) == 1:
+        return True
     sliceincrement_inconsistent = False
     first_image_position = numpy.array(dicoms[0].ImagePositionPatient)
     previous_image_position = numpy.array(dicoms[1].ImagePositionPatient)
