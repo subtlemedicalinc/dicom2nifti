@@ -155,6 +155,30 @@ Python code:
    dicom2nifti.convert_directory(dicom_directory, output_folder)
 
 
+Single slice
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+By default we do not convert single slice images.
+You can explicitly allow the conversion of single slices.
+
+Command line:
+
+.. code-block:: bash
+
+   dicom2nifti -S input_directory output_directory
+
+
+Python code:
+
+.. code-block:: python
+
+   import dicom2nifti
+   import dicom2nifti.settings as settings
+
+   settings.disable_validate_slicecount()
+
+   dicom2nifti.convert_directory(dicom_directory, output_folder)
+
+
 GE MR
 ^^^^^^
 Anatomical data should all be support.
