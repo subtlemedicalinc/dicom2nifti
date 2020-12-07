@@ -34,7 +34,7 @@ def reorient_image(input_image, output_image):
     # print 'Reorganizing data'
     if image.nifti_data.squeeze().ndim == 4:
         new_image = _reorient_4d(image)
-    elif image.nifti_data.squeeze().ndim == 3 or image.nifti_data.ndim == 3:
+    elif image.nifti_data.squeeze().ndim == 3 or image.nifti_data.ndim == 3 or image.nifti_data.squeeze().ndim == 2:
         new_image = _reorient_3d(image)
     else:
         raise Exception('Only 3d and 4d images are supported')
@@ -60,7 +60,7 @@ def reorient_image(input_image, output_image):
     if not image.axial_orientation.x_inverted:
         new_affine[:, 0] = - new_affine[:, 0]
         point[image.sagittal_orientation.normal_component] = image.dimensions[
-                                                                image.sagittal_orientation.normal_component] - 1
+                                                                 image.sagittal_orientation.normal_component] - 1
         # new_affine[0, 3] = - new_affine[0, 3]
     if image.axial_orientation.y_inverted:
         new_affine[:, 1] = - new_affine[:, 1]
@@ -77,7 +77,9 @@ def reorient_image(input_image, output_image):
     # DONE: Needs to update new_affine, so that there is no translation difference between the original
     # and created image (now there is 1-2 voxels translation)
     # print 'Creating new nifti image'
-    output = nibabel.nifti1.Nifti1Image(new_image.squeeze(), new_affine)
+    if new_image.ndim > 3:  # do not squeeze single slice data
+        new_image = new_image.squeeze()
+    output = nibabel.nifti1.Nifti1Image(new_image, new_affine)
     output.header.set_slope_inter(1, 0)
     output.header.set_xyzt_units(2)  # set units for xyz (leave t as unknown)
     output.to_filename(output_image)
@@ -127,11 +129,11 @@ def _reorient_3d(image):
     # Fill the new image with the values of the input image but with matching the orientation with x,y,z
     if image.coronal_orientation.y_inverted:
         for i in range(new_image.shape[2]):
-            new_image[:, :, i] = numpy.fliplr(numpy.squeeze(image.get_slice(SliceType.AXIAL,
-                                                                            new_image.shape[2] - 1 - i).original_data))
+            new_image[:, :, i] = numpy.fliplr(image.get_slice(SliceType.AXIAL,
+                                                              new_image.shape[2] - 1 - i).original_data)
     else:
         for i in range(new_image.shape[2]):
-            new_image[:, :, i] = numpy.fliplr(numpy.squeeze(image.get_slice(SliceType.AXIAL,
-                                                                            i).original_data))
+            new_image[:, :, i] = numpy.fliplr(image.get_slice(SliceType.AXIAL,
+                                                              i).original_data)
 
     return new_image

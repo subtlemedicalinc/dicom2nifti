@@ -22,10 +22,10 @@ class TestConversionDirectory(unittest.TestCase):
             settings.set_resample_spline_interpolation_order(1)
             settings.set_resample_padding(-1000)
             settings.disable_validate_slice_increment()
-            settings.enable_validate_instance_number()
-            #settings.disable_validate_orthogonal()
-            convert_directory.convert_directory("/Users/abrys/Downloads/2961511976/1315141970_20200407",
-                                                "/Users/abrys/Downloads/2961511976/1315141970_20200407")
+            # settings.enable_validate_instance_number()
+            settings.disable_validate_orthogonal()
+            convert_directory.convert_directory("/Users/abrys/Downloads/scans",
+                                                "/Users/abrys/Downloads/scans")
 
         finally:
             shutil.rmtree(tmp_output_dir)
@@ -35,14 +35,28 @@ class TestConversionDirectory(unittest.TestCase):
         tmp_output_dir = tempfile.mkdtemp()
         try:
             import pydicom
-            #headers = pydicom.read_file("/Users/abrys/Downloads/failing_cases/test.dcm")
-            convert_directory.convert_directory("/Users/abrys/Downloads/inconsistent_slice_increment2",
-                                                "/Users/abrys/Downloads")
+            # headers = pydicom.read_file("/Users/abrys/Downloads/failing_cases/test.dcm")
+            convert_directory.convert_directory("/Users/abrys/Downloads/Agfa",
+                                                "/Users/abrys/Downloads/Agfa")
+
+        finally:
+            shutil.rmtree(tmp_output_dir)
+
+    def test_convert_directory3(self):
+
+        tmp_output_dir = tempfile.mkdtemp()
+        try:
+            import pydicom
+            settings.disable_validate_slicecount()
+            convert_directory.convert_directory("/Users/abrys/Downloads/single_slice",
+                                                "/Users/abrys/Downloads/single_slice")
 
         finally:
             shutil.rmtree(tmp_output_dir)
 
 
-
 if __name__ == '__main__':
-    unittest.main()
+    convert_directory.convert_directory("/Users/abrys/Downloads/Agfa",
+                                        "/Users/abrys/Downloads/Agfa")
+
+    # unittest.main()

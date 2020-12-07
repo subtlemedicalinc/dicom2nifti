@@ -57,10 +57,8 @@ class ImageVolume(object):
         self.nifti = nifti_image
         # assert that it is a 3D image
         self.nifti_data = get_nifti_data(self.nifti).squeeze()
-        # if only 1 slice we need to make it a 3D volume
         if self.nifti_data.ndim == 2:
-            self.nifti_data = numpy.expand_dims(self.nifti_data,2)
-
+            self.nifti_data = numpy.expand_dims(self.nifti_data, 2)
         if self.nifti_data.ndim != 3:
             assert self.nifti_data.ndim >= 3
 

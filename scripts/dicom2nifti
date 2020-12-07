@@ -32,6 +32,9 @@ def main(args):
     parser.add_argument('-I', '--allow-inconsistent-slice-increment', action='store_true',
                         help='allow the conversion of inconsistent slice increment data (this will result in distorted images unless resampling is enabled)')
 
+    parser.add_argument('-S', '--allow-single-slice', action='store_true',
+                        help='allow the conversion of a single slice (2D image)')
+
     parser.add_argument('-r', '--resample', action='store_true',
                         help='resample gantry tilted data to an orthogonal image or inconsistent slice increment data to a uniform image')
 
@@ -67,6 +70,8 @@ def main(args):
             settings.disable_validate_orthogonal()
         if args.allow_multiframe_implicit:
             settings.disable_validate_multiframe_implicit()
+        if args.allow_single_slice:
+            settings.disable_validate_slicecount()
         if args.resample:
             settings.enable_resampling()
         if args.resample_order:

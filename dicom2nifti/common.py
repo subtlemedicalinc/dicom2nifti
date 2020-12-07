@@ -520,7 +520,10 @@ def create_affine(sorted_dicoms):
 
     if len(sorted_dicoms) == 1:
         # Single slice
-        step = [0, 0, -1]
+        slice_thickness = 1
+        if "SliceThickness" in sorted_dicoms[0]:
+            slice_thickness = sorted_dicoms[0].SliceThickness
+        step = - numpy.cross(image_orient1, image_orient2) * slice_thickness
     else:
         step = (image_pos - last_image_pos) / (1 - len(sorted_dicoms))
 

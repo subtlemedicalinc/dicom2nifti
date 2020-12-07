@@ -80,7 +80,9 @@ def dicom_to_nifti(dicom_input, output_file):
         affine, max_slice_increment = common.create_affine(dicom_input)
 
         # Convert to nifti
-        nii_image = nibabel.Nifti1Image(data.squeeze(), affine)
+        if data.ndim > 3: # do not squeeze single slice data
+            data = data.squeeze()
+        nii_image = nibabel.Nifti1Image(data, affine)
 
     # Set TR and TE if available
     if Tag(0x0018, 0x0080) in dicom_input[0] and Tag(0x0018, 0x0081) in dicom_input[0]:
@@ -217,7 +219,9 @@ def _convert_slice_incement_inconsistencies(dicom_input):
     for dicom_slices in slice_incement_groups:
         data = common.get_volume_pixeldata(dicom_slices)
         affine, _ = common.create_affine(dicom_slices)
-        current_volume = nibabel.Nifti1Image(data.squeeze(), affine)
+        if data.ndim > 3: # do not squeeze single slice data
+            data = data.squeeze()
+        current_volume = nibabel.Nifti1Image(data, affine)
         slice_increment = numpy.linalg.norm(current_volume.header.get_zooms())
         voxel_sizes['%.5f' % slice_increment] = current_volume.header.get_zooms()
         slice_increments.extend([slice_increment] * (len(dicom_slices)-1))

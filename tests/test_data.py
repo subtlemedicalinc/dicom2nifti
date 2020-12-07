@@ -23,6 +23,9 @@ GENERIC_NON_ISOTROPIC = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 GE_ANATOMICAL = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              'data', 'ge', 'anatomical', '001')
 
+GE_ANATOMICAL_SINGLE_SLICE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                          'data', 'ge', 'anatomical', '001_single_slice')
+
 GE_ANATOMICAL_IMPLICIT = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                       'data', 'ge', 'anatomical', '001_implicit')
 

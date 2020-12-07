@@ -42,6 +42,23 @@ class TestConversionGeneric(unittest.TestCase):
         finally:
             shutil.rmtree(tmp_output_dir)
 
+    def test_single_slice(self):
+        tmp_output_dir = tempfile.mkdtemp()
+        try:
+            settings.disable_validate_slicecount()
+
+            results = convert_generic.dicom_to_nifti(read_dicom_directory(test_data.GE_ANATOMICAL_SINGLE_SLICE),
+                                                     os.path.join(tmp_output_dir, 'test.nii.gz'))
+            assert_compare_nifti(results['NII_FILE'],
+                                 ground_thruth_filenames(test_data.GE_ANATOMICAL_SINGLE_SLICE)[0])
+            self.assertTrue(isinstance(results['NII'], nibabel.nifti1.Nifti1Image))
+
+
+
+        finally:
+            settings.enable_validate_slicecount()
+            shutil.rmtree(tmp_output_dir)
+
     @unittest.skip("Skip untill we figure out why it fails on circleci")
     def test_inconsistent_slice_increment_resampling(self):
         tmp_output_dir = tempfile.mkdtemp()

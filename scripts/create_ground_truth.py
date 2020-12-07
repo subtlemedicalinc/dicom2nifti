@@ -1,6 +1,7 @@
 import os
 
 import logging
+import traceback
 
 import dicom2nifti
 import dicom2nifti.settings as settings
@@ -23,6 +24,7 @@ def main():
     print(test_data_directory)
     for root, dir_names, _ in os.walk(test_data_directory):
         settings.disable_validate_multiframe_implicit()
+        settings.disable_validate_slicecount()
         # New directory
         for dir_name in dir_names:
             dir_path = os.path.join(root, dir_name)
