@@ -14,6 +14,8 @@ GENERIC_ANATOMICAL_IMPLICIT = os.path.join(os.path.dirname(os.path.abspath(__fil
                                            'data', 'generic', 'anatomical', '001_implicit')
 GENERIC_COMPRESSED = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                   'data', 'generic', 'compressed', '001')
+GENERIC_RGB = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                  'data', 'generic', 'rgb', '001')
 GENERIC_COMPRESSED_IMPLICIT = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                            'data', 'generic', 'compressed', '001_implicit')
 GENERIC_NON_ISOTROPIC = os.path.join(os.path.dirname(os.path.abspath(__file__)),

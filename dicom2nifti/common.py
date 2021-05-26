@@ -191,7 +191,7 @@ def get_volume_pixeldata(sorted_slices):
     """
     the slice and intercept calculation can cause the slices to have different dtypes
     we should get the correct dtype that can cover all of them
-    
+
     :type sorted_slices: list of slices
     :param sorted_slices: sliced sored in the correct order to create volume
     """
@@ -210,7 +210,11 @@ def get_volume_pixeldata(sorted_slices):
     vol = numpy.concatenate(slices, axis=0)
 
     # Done
-    vol = numpy.transpose(vol, (2, 1, 0))
+    # if rgb data do separate transpose
+    if len(vol.shape) == 4 and vol.shape[3] == 3:
+        vol = numpy.transpose(vol, (2, 1, 0, 3))
+    else:
+        vol = numpy.transpose(vol, (2, 1, 0))
     return vol
 
 
@@ -759,6 +763,7 @@ def set_tr_te(nifti_image, repetition_time, echo_time):
     nifti_image.header.structarr['db_name'] = '?TR:%.3f TE:%d' % (repetition_time, echo_time)
 
     return nifti_image
+
 
 def get_nifti_data(nifti_image):
     """

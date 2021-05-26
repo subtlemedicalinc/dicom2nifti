@@ -1,11 +1,9 @@
+import logging
 import os
 
-import logging
-import traceback
-
 import dicom2nifti
-import dicom2nifti.settings as settings
 import dicom2nifti.image_reorientation as image_reorientation
+import dicom2nifti.settings as settings
 
 
 def subdir_count(path):

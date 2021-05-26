@@ -63,6 +63,7 @@ def anonymize_directory(input_directory, output_directory=None):
                       'ImageOrientationPatient': None,
                       'SliceLocation': None,
                       'PhotometricInterpretation': None,
+                      'PlanarConfiguration': None,
                       'Rows': None,
                       'Columns': None,
                       'PixelSpacing': None,

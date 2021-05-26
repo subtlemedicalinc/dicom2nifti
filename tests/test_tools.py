@@ -34,9 +34,18 @@ def assert_compare_nifti(nifti_file_1, nifti_file_2):
             raise Exception('affine mismatch')
 
         # check the data
+        nifti_1_data = get_nifti_data(nifti_1)
+        nifti_2_data = get_nifti_data(nifti_2)
+
+        # in case of rgba data we should stack the data again
+        if nifti_1.get_data_dtype() == [('R', 'u1'), ('G', 'u1'), ('B', 'u1'), ('A', 'u1')]:
+            nifti_1_data = numpy.stack([nifti_1_data['R'], nifti_1_data['G'], nifti_1_data['B'], nifti_1_data['A']])
+        if nifti_2.get_data_dtype() == [('R', 'u1'), ('G', 'u1'), ('B', 'u1'), ('A', 'u1')]:
+            nifti_2_data = numpy.stack([nifti_2_data['R'], nifti_2_data['G'], nifti_2_data['B'], nifti_2_data['A']])
+            
         if nifti_1.get_data_dtype() != nifti_2.get_data_dtype():
             raise Exception('dtype mismatch')
-        if not numpy.allclose(get_nifti_data(nifti_1), get_nifti_data(nifti_2), rtol=0.01, atol=1):
+        if not numpy.allclose(nifti_1_data, nifti_2_data, rtol=0.01, atol=1):
             difference = get_nifti_data(nifti_1) - get_nifti_data(nifti_2)
             raise Exception('data mismatch %s ' % numpy.max(numpy.abs(difference)))
 

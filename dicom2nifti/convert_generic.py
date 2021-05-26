@@ -68,7 +68,6 @@ def dicom_to_nifti(dicom_input, output_file):
         # validate that all slices have a consistent instance_number
         common.validate_instance_number(dicom_input)
 
-
     # if inconsistent increment and we allow resampling then do the resampling based conversion to maintain the correct geometric shape
     if slice_increment_inconsistent and settings.resample:
         nii_image, max_slice_increment = _convert_slice_incement_inconsistencies(dicom_input)
@@ -80,9 +79,12 @@ def dicom_to_nifti(dicom_input, output_file):
         affine, max_slice_increment = common.create_affine(dicom_input)
 
         # Convert to nifti
-        if data.ndim > 3: # do not squeeze single slice data
+        if data.ndim > 3:  # do not squeeze single slice data
             data = data.squeeze()
-        nii_image = nibabel.Nifti1Image(data, affine)
+        if dicom_input[0].PhotometricInterpretation == 'RGB':
+            nii_image = create_rgba_nifti(data, affine)
+        else:
+            nii_image = nibabel.Nifti1Image(data, affine)
 
     # Set TR and TE if available
     if Tag(0x0018, 0x0080) in dicom_input[0] and Tag(0x0018, 0x0081) in dicom_input[0]:
@@ -98,6 +100,18 @@ def dicom_to_nifti(dicom_input, output_file):
     return {'NII_FILE': output_file,
             'NII': nii_image,
             'MAX_SLICE_INCREMENT': max_slice_increment}
+
+
+def create_rgba_nifti(rgb_data, affine):
+    # ras_pos is a 4-d numpy array, with the last dim holding RGB
+    shape_3d = rgb_data.shape[0:3]
+    # we generate using rgb for speed data but export rgba in order for the frontend to support it
+    rgba_data = numpy.full(shape_3d + (4,), 255, dtype=numpy.uint8)
+    rgba_data[:, :, :, :3] = rgb_data
+    rgba_dtype = numpy.dtype([('R', 'u1'), ('G', 'u1'), ('B', 'u1'), ('A', 'u1')])
+    # copy used to force fresh internal structure
+    rgba_data = rgba_data.copy().view(dtype=rgba_dtype).reshape(shape_3d)
+    return nibabel.Nifti1Image(rgba_data, affine)
 
 
 def remove_duplicate_slices(dicoms):
@@ -219,16 +233,16 @@ def _convert_slice_incement_inconsistencies(dicom_input):
     for dicom_slices in slice_incement_groups:
         data = common.get_volume_pixeldata(dicom_slices)
         affine, _ = common.create_affine(dicom_slices)
-        if data.ndim > 3: # do not squeeze single slice data
+        if data.ndim > 3:  # do not squeeze single slice data
             data = data.squeeze()
         current_volume = nibabel.Nifti1Image(data, affine)
         slice_increment = numpy.linalg.norm(current_volume.header.get_zooms())
         voxel_sizes['%.5f' % slice_increment] = current_volume.header.get_zooms()
-        slice_increments.extend([slice_increment] * (len(dicom_slices)-1))
+        slice_increments.extend([slice_increment] * (len(dicom_slices) - 1))
         slice_incement_niftis.append(current_volume)
 
     tenth_percentile_incement = numpy.percentile(slice_increments, 15)
-    most_used_increment = min(slice_increments, key=lambda x:abs(x-tenth_percentile_incement))
+    most_used_increment = min(slice_increments, key=lambda x: abs(x - tenth_percentile_incement))
     voxel_size = voxel_sizes['%.5f' % most_used_increment]
 
     nifti_volume = resample.resample_nifti_images(slice_incement_niftis, voxel_size=voxel_size)
