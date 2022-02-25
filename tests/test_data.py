@@ -15,7 +15,7 @@ GENERIC_ANATOMICAL_IMPLICIT = os.path.join(os.path.dirname(os.path.abspath(__fil
 GENERIC_COMPRESSED = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                   'data', 'generic', 'compressed', '001')
 GENERIC_RGB = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                  'data', 'generic', 'rgb', '001')
+                           'data', 'generic', 'rgb', '001')
 GENERIC_COMPRESSED_IMPLICIT = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                            'data', 'generic', 'compressed', '001_implicit')
 GENERIC_NON_ISOTROPIC = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -121,7 +121,10 @@ SIEMENS_CLASSIC_FMRI = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 SIEMENS_CLASSIC_FMRI_IMPLICIT = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                              'data', 'siemens', 'fmri_classic', '001_implicit')
 
-# SIEMENS DATASETS
+SIEMENS_MULTIFRAME_ANATOMICAL = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                             'data', 'siemens_multiframe', 'anatomical', '001')
+
+# HITACHI DATASETS
 HITACHI_ANATOMICAL = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                   'data', 'hitachi', 'anatomical', '001')
 

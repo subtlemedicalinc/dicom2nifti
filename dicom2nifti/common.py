@@ -162,7 +162,7 @@ def is_valid_imaging_dicom(dicom_header):
     """
     # if it is philips and multiframe dicom then we assume it is ok
     try:
-        if is_philips([dicom_header]):
+        if is_philips([dicom_header]) or is_siemens([dicom_header]):
             if is_multiframe_dicom([dicom_header]):
                 return True
 
@@ -185,6 +185,27 @@ def is_valid_imaging_dicom(dicom_header):
         return True
     except (KeyError, AttributeError):
         return False
+
+
+def multiframe_get_volume_pixeldata(dicoms):
+    """
+    the slice and intercept calculation can cause the slices to have different dtypes
+    we should get the correct dtype that can cover all of them
+
+    :type sorted_slices: list of slices
+    :param sorted_slices: sliced sored in the correct order to create volume
+    """
+
+    # create the new volume with with the correct data
+    vol = _get_slice_pixeldata(dicoms[0])
+
+    # Done
+    # if rgb data do separate transpose
+    if len(vol.shape) == 4 and vol.shape[3] == 3:
+        vol = numpy.transpose(vol, (2, 1, 0, 3))
+    else:
+        vol = numpy.transpose(vol, (2, 1, 0))
+    return vol
 
 
 def get_volume_pixeldata(sorted_slices):
@@ -502,6 +523,47 @@ def write_bval_file(bvals, bval_file):
         # join the bvals using a space and write to the file
         text_file.write('%s\n' % ' '.join(map(str, bvals)))
 
+def multiframe_create_affine(dicoms):
+    """
+    Function to generate the affine matrix for a dicom series
+    This method was based on (http://nipy.org/nibabel/dicom/dicom_orientation.html)
+
+    :param sorted_dicoms: list with sorted dicom files
+    """
+
+    # Create affine matrix (http://nipy.sourceforge.net/nibabel/dicom/dicom_orientation.html#dicom-slice-affine)
+    frame_info = dicoms[0].PerFrameFunctionalGroupsSequence
+    image_orient1 = numpy.array(frame_info[0].PlaneOrientationSequence[0].ImageOrientationPatient)[0:3]
+    image_orient2 = numpy.array(frame_info[0].PlaneOrientationSequence[0].ImageOrientationPatient)[3:6]
+    first_image_pos = numpy.array(frame_info[0].PlanePositionSequence[0].ImagePositionPatient)
+
+    delta_r = float(frame_info[0].PixelMeasuresSequence[0].PixelSpacing[0])
+    delta_c = float(frame_info[0].PixelMeasuresSequence[0].PixelSpacing[1])
+
+    image_pos = numpy.array(frame_info[0].PlanePositionSequence[0].ImagePositionPatient)
+
+    last_image_pos = numpy.array(frame_info[-1].PlanePositionSequence[0].ImagePositionPatient)
+
+    if len(frame_info) == 1:
+        # Single slice
+        slice_thickness = 1
+        if "SliceThickness" in frame_info[0].PixelMeasuresSequence[0]:
+            slice_thickness = frame_info[0].PixelMeasuresSequence[0].SliceThickness
+        step = - numpy.cross(image_orient1, image_orient2) * slice_thickness
+    else:
+        step = (image_pos - last_image_pos) / (1 - len(frame_info))
+
+    # check if this is actually a volume and not all slices on the same location
+    if numpy.linalg.norm(step) == 0.0:
+        raise ConversionError("NOT_A_VOLUME")
+
+    affine = numpy.array(
+        [[-image_orient1[0] * delta_c, -image_orient2[0] * delta_r, -step[0], -image_pos[0]],
+         [-image_orient1[1] * delta_c, -image_orient2[1] * delta_r, -step[1], -image_pos[1]],
+         [image_orient1[2] * delta_c, image_orient2[2] * delta_r, step[2], image_pos[2]],
+         [0, 0, 0, 1]]
+    )
+    return affine, numpy.linalg.norm(step)
 
 def create_affine(sorted_dicoms):
     """
@@ -543,6 +605,15 @@ def create_affine(sorted_dicoms):
     )
     return affine, numpy.linalg.norm(step)
 
+def multiframe_validate_orthogonal(dicoms):
+    """
+    Validate that volume is orthonormal
+
+    :param dicoms: check that we have a volume without skewing
+    """
+    # if only one slice we do not need this check
+    if not multiframe_is_orthogonal(dicoms, log_details=True):
+        raise ConversionValidationError('NON_CUBICAL_IMAGE/GANTRY_TILT')
 
 def validate_orthogonal(dicoms):
     """
@@ -556,6 +627,35 @@ def validate_orthogonal(dicoms):
     if not is_orthogonal(dicoms, log_details=True):
         raise ConversionValidationError('NON_CUBICAL_IMAGE/GANTRY_TILT')
 
+def multiframe_is_orthogonal(dicoms, log_details=False):
+    """
+    Validate that volume is orthonormal
+
+    :param dicoms: check that we have a volume without skewing
+    """
+    frame_info = dicoms[0].PerFrameFunctionalGroupsSequence
+    first_image_orient1 = numpy.array(frame_info[0].PlaneOrientationSequence[0].ImageOrientationPatient)[0:3]
+    first_image_orient2 = numpy.array(frame_info[0].PlaneOrientationSequence[0].ImageOrientationPatient)[3:6]
+    first_image_pos = numpy.array(frame_info[0].PlanePositionSequence[0].ImagePositionPatient)
+
+    last_image_pos = numpy.array(frame_info[-1].PlanePositionSequence[0].ImagePositionPatient)
+
+    first_image_dir = numpy.cross(first_image_orient1, first_image_orient2)
+    first_image_dir /= numpy.linalg.norm(first_image_dir)
+
+    combined_dir = last_image_pos - first_image_pos
+    combined_dir /= numpy.linalg.norm(combined_dir)
+
+    if not numpy.allclose(first_image_dir, combined_dir, rtol=0.05, atol=0.05) \
+            and not numpy.allclose(first_image_dir, -combined_dir, rtol=0.05, atol=0.05):
+        if log_details:
+            logger.warning('Orthogonality check failed: non cubical image')
+            logger.warning('---------------------------------------------------------')
+            logger.warning(first_image_dir)
+            logger.warning(combined_dir)
+            logger.warning('---------------------------------------------------------')
+        return False
+    return True
 
 def is_orthogonal(dicoms, log_details=False):
     """
@@ -635,6 +735,29 @@ def sort_dicoms(dicoms):
     if diff_z >= diff_x and diff_z >= diff_y:
         return dicom_input_sorted_z
 
+def multiframe_validate_slice_increment(dicoms):
+    """
+    Validate that the distance between all slices is equal (or very close to)
+
+    :param dicoms: list of dicoms
+    """
+
+    frame_info = dicoms[0].PerFrameFunctionalGroupsSequence
+    first_image_position = numpy.array(frame_info[0].PlanePositionSequence[0].ImagePositionPatient)
+    previous_image_position = numpy.array(frame_info[1].PlanePositionSequence[0].ImagePositionPatient)
+
+    increment = first_image_position - previous_image_position
+    for frame_ in frame_info[2:]:
+        current_image_position = numpy.array(frame_.PlanePositionSequence[0].ImagePositionPatient)
+        current_increment = previous_image_position - current_image_position
+        if not numpy.allclose(increment, current_increment, rtol=0.05, atol=0.1):
+            logger.warning('Slice increment not consistent through all slices')
+            logger.warning('---------------------------------------------------------')
+            logger.warning('%s %s' % (previous_image_position, increment))
+            logger.warning('%s %s' % (current_image_position, current_increment))
+            logger.warning('---------------------------------------------------------')
+            raise ConversionValidationError('SLICE_INCREMENT_INCONSISTENT')
+        previous_image_position = current_image_position
 
 def validate_slice_increment(dicoms):
     """
@@ -690,6 +813,28 @@ def validate_instance_number(dicoms):
         previous_instance_number = current_instance_number
 
 
+def multiframe_is_slice_increment_inconsistent(dicoms):
+    """
+    Validate that the distance between all slices is equal (or very close to)
+
+    :param dicoms: list of dicoms
+    """
+    sliceincrement_inconsistent = False
+    frame_info = dicoms[0].PerFrameFunctionalGroupsSequence
+    first_image_position = numpy.array(frame_info[0].PlanePositionSequence[0].ImagePositionPatient)
+    previous_image_position = numpy.array(frame_info[1].PlanePositionSequence[0].ImagePositionPatient)
+
+    increment = first_image_position - previous_image_position
+    for frame_ in frame_info[2:]:
+        current_image_position = numpy.array(frame_.PlanePositionSequence[0].ImagePositionPatient)
+        current_increment = previous_image_position - current_image_position
+        if not numpy.allclose(increment, current_increment, rtol=0.05, atol=0.1):
+            sliceincrement_inconsistent = True
+            break
+        previous_image_position = current_image_position
+    return sliceincrement_inconsistent
+
+
 def is_slice_increment_inconsistent(dicoms):
     """
     Validate that the distance between all slices is equal (or very close to)
@@ -713,6 +858,20 @@ def is_slice_increment_inconsistent(dicoms):
     return sliceincrement_inconsistent
 
 
+def multiframe_validate_slicecount(dicoms):
+    """
+    Validate that volume is big enough to create a meaningfull volume
+    This will also skip localizers and alike
+
+    :param dicoms: list of dicoms
+    """
+    frame_info = dicoms[0].PerFrameFunctionalGroupsSequence
+    if len(frame_info) <= 3:
+
+        logger.warning('At least 3 slices are needed for correct conversion')
+        logger.warning('---------------------------------------------------------')
+        raise ConversionValidationError('TOO_FEW_SLICES/LOCALIZER')
+
 def validate_slicecount(dicoms):
     """
     Validate that volume is big enough to create a meaningfull volume
@@ -721,10 +880,31 @@ def validate_slicecount(dicoms):
     :param dicoms: list of dicoms
     """
     if len(dicoms) <= 3:
-        logger.warning('At least 4 slices are needed for correct conversion')
+        logger.warning('At least 3 slices are needed for correct conversion')
         logger.warning('---------------------------------------------------------')
         raise ConversionValidationError('TOO_FEW_SLICES/LOCALIZER')
 
+def multiframe_validate_orientation(dicoms):
+    """
+    Validate that all dicoms have the same orientation
+
+    :param dicoms: list of dicoms
+    """
+    frame_info = dicoms[0].PerFrameFunctionalGroupsSequence
+    first_image_orient1 = numpy.array(frame_info[0].PlaneOrientationSequence[0].ImageOrientationPatient)[0:3]
+    first_image_orient2 = numpy.array(frame_info[0].PlaneOrientationSequence[0].ImageOrientationPatient)[3:6]
+    for frame_ in frame_info:
+        # Create affine matrix (http://nipy.sourceforge.net/nibabel/dicom/dicom_orientation.html#dicom-slice-affine)
+        image_orient1 = numpy.array(frame_.PlaneOrientationSequence[0].ImageOrientationPatient)[0:3]
+        image_orient2 = numpy.array(frame_.PlaneOrientationSequence[0].ImageOrientationPatient)[3:6]
+        if not numpy.allclose(image_orient1, first_image_orient1, rtol=0.001, atol=0.001) \
+                or not numpy.allclose(image_orient2, first_image_orient2, rtol=0.001, atol=0.001):
+            logger.warning('Image orientations not consistent through all slices')
+            logger.warning('---------------------------------------------------------')
+            logger.warning('%s %s' % (image_orient1, first_image_orient1))
+            logger.warning('%s %s' % (image_orient2, first_image_orient2))
+            logger.warning('---------------------------------------------------------')
+            raise ConversionValidationError('IMAGE_ORIENTATION_INCONSISTENT')
 
 def validate_orientation(dicoms):
     """

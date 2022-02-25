@@ -41,49 +41,49 @@ class TestConversionSiemens(unittest.TestCase):
             results = convert_siemens.dicom_to_nifti(read_dicom_directory(test_data.SIEMENS_DTI),
                                                      os.path.join(tmp_output_dir, 'test.nii.gz'))
             assert_compare_nifti(results['NII_FILE'],
-                                        ground_thruth_filenames(test_data.SIEMENS_DTI)[0])
+                                 ground_thruth_filenames(test_data.SIEMENS_DTI)[0])
             self.assertTrue(isinstance(results['NII'], nibabel.nifti1.Nifti1Image))
             assert_compare_bval(results['BVAL_FILE'],
-                                       ground_thruth_filenames(test_data.SIEMENS_DTI)[2])
+                                ground_thruth_filenames(test_data.SIEMENS_DTI)[2])
             self.assertTrue(isinstance(results['BVAL'], numpy.ndarray))
             assert_compare_bval(results['BVEC_FILE'],
-                                       ground_thruth_filenames(test_data.SIEMENS_DTI)[3])
+                                ground_thruth_filenames(test_data.SIEMENS_DTI)[3])
             self.assertTrue(isinstance(results['BVEC'], numpy.ndarray))
 
             results = convert_siemens.dicom_to_nifti(read_dicom_directory(test_data.SIEMENS_DTI_IMPLICIT),
                                                      os.path.join(tmp_output_dir, 'test.nii.gz'))
             assert_compare_nifti(results['NII_FILE'],
-                                        ground_thruth_filenames(test_data.SIEMENS_DTI_IMPLICIT)[0])
+                                 ground_thruth_filenames(test_data.SIEMENS_DTI_IMPLICIT)[0])
             self.assertTrue(isinstance(results['NII'], nibabel.nifti1.Nifti1Image))
             assert_compare_bval(results['BVAL_FILE'],
-                                       ground_thruth_filenames(test_data.SIEMENS_DTI_IMPLICIT)[2])
+                                ground_thruth_filenames(test_data.SIEMENS_DTI_IMPLICIT)[2])
             self.assertTrue(isinstance(results['BVAL'], numpy.ndarray))
             assert_compare_bval(results['BVEC_FILE'],
-                                       ground_thruth_filenames(test_data.SIEMENS_DTI_IMPLICIT)[3])
+                                ground_thruth_filenames(test_data.SIEMENS_DTI_IMPLICIT)[3])
             self.assertTrue(isinstance(results['BVEC'], numpy.ndarray))
 
             results = convert_siemens.dicom_to_nifti(read_dicom_directory(test_data.SIEMENS_CLASSIC_DTI),
                                                      os.path.join(tmp_output_dir, 'test.nii.gz'))
             assert_compare_nifti(results['NII_FILE'],
-                                        ground_thruth_filenames(test_data.SIEMENS_CLASSIC_DTI)[0])
+                                 ground_thruth_filenames(test_data.SIEMENS_CLASSIC_DTI)[0])
             self.assertTrue(isinstance(results['NII'], nibabel.nifti1.Nifti1Image))
             assert_compare_bval(results['BVAL_FILE'],
-                                       ground_thruth_filenames(test_data.SIEMENS_CLASSIC_DTI)[2])
+                                ground_thruth_filenames(test_data.SIEMENS_CLASSIC_DTI)[2])
             self.assertTrue(isinstance(results['BVAL'], numpy.ndarray))
             assert_compare_bval(results['BVEC_FILE'],
-                                       ground_thruth_filenames(test_data.SIEMENS_CLASSIC_DTI)[3])
+                                ground_thruth_filenames(test_data.SIEMENS_CLASSIC_DTI)[3])
             self.assertTrue(isinstance(results['BVEC'], numpy.ndarray))
 
             results = convert_siemens.dicom_to_nifti(read_dicom_directory(test_data.SIEMENS_CLASSIC_DTI_IMPLICIT),
                                                      os.path.join(tmp_output_dir, 'test.nii.gz'))
             assert_compare_nifti(results['NII_FILE'],
-                                        ground_thruth_filenames(test_data.SIEMENS_CLASSIC_DTI_IMPLICIT)[0])
+                                 ground_thruth_filenames(test_data.SIEMENS_CLASSIC_DTI_IMPLICIT)[0])
             self.assertTrue(isinstance(results['NII'], nibabel.nifti1.Nifti1Image))
             assert_compare_bval(results['BVAL_FILE'],
-                                       ground_thruth_filenames(test_data.SIEMENS_CLASSIC_DTI_IMPLICIT)[2])
+                                ground_thruth_filenames(test_data.SIEMENS_CLASSIC_DTI_IMPLICIT)[2])
             self.assertTrue(isinstance(results['BVAL'], numpy.ndarray))
             assert_compare_bval(results['BVEC_FILE'],
-                                       ground_thruth_filenames(test_data.SIEMENS_CLASSIC_DTI_IMPLICIT)[3])
+                                ground_thruth_filenames(test_data.SIEMENS_CLASSIC_DTI_IMPLICIT)[3])
             self.assertTrue(isinstance(results['BVEC'], numpy.ndarray))
         finally:
             shutil.rmtree(tmp_output_dir)
@@ -99,25 +99,25 @@ class TestConversionSiemens(unittest.TestCase):
             results = convert_siemens.dicom_to_nifti(read_dicom_directory(test_data.SIEMENS_FMRI),
                                                      os.path.join(tmp_output_dir, 'test.nii.gz'))
             assert_compare_nifti(results['NII_FILE'],
-                                        ground_thruth_filenames(test_data.SIEMENS_FMRI)[0])
+                                 ground_thruth_filenames(test_data.SIEMENS_FMRI)[0])
             self.assertTrue(isinstance(results['NII'], nibabel.nifti1.Nifti1Image))
 
             results = convert_siemens.dicom_to_nifti(read_dicom_directory(test_data.SIEMENS_FMRI_IMPLICIT),
                                                      os.path.join(tmp_output_dir, 'test.nii.gz'))
             assert_compare_nifti(results['NII_FILE'],
-                                        ground_thruth_filenames(test_data.SIEMENS_FMRI_IMPLICIT)[0])
+                                 ground_thruth_filenames(test_data.SIEMENS_FMRI_IMPLICIT)[0])
             self.assertTrue(isinstance(results['NII'], nibabel.nifti1.Nifti1Image))
 
             results = convert_siemens.dicom_to_nifti(read_dicom_directory(test_data.SIEMENS_CLASSIC_FMRI),
                                                      os.path.join(tmp_output_dir, 'test.nii.gz'))
             assert_compare_nifti(results['NII_FILE'],
-                                        ground_thruth_filenames(test_data.SIEMENS_CLASSIC_FMRI)[0])
+                                 ground_thruth_filenames(test_data.SIEMENS_CLASSIC_FMRI)[0])
             self.assertTrue(isinstance(results['NII'], nibabel.nifti1.Nifti1Image))
 
             results = convert_siemens.dicom_to_nifti(read_dicom_directory(test_data.SIEMENS_CLASSIC_FMRI_IMPLICIT),
                                                      os.path.join(tmp_output_dir, 'test.nii.gz'))
             assert_compare_nifti(results['NII_FILE'],
-                                        ground_thruth_filenames(test_data.SIEMENS_CLASSIC_FMRI_IMPLICIT)[0])
+                                 ground_thruth_filenames(test_data.SIEMENS_CLASSIC_FMRI_IMPLICIT)[0])
             self.assertTrue(isinstance(results['NII'], nibabel.nifti1.Nifti1Image))
         finally:
             shutil.rmtree(tmp_output_dir)
@@ -133,13 +133,19 @@ class TestConversionSiemens(unittest.TestCase):
             results = convert_siemens.dicom_to_nifti(read_dicom_directory(test_data.SIEMENS_ANATOMICAL),
                                                      os.path.join(tmp_output_dir, 'test.nii.gz'))
             assert_compare_nifti(results['NII_FILE'],
-                                        ground_thruth_filenames(test_data.SIEMENS_ANATOMICAL)[0])
+                                 ground_thruth_filenames(test_data.SIEMENS_ANATOMICAL)[0])
+            self.assertTrue(isinstance(results['NII'], nibabel.nifti1.Nifti1Image))
+
+            results = convert_siemens.dicom_to_nifti(read_dicom_directory(test_data.SIEMENS_MULTIFRAME_ANATOMICAL),
+                                                     os.path.join(tmp_output_dir, 'test.nii.gz'))
+            assert_compare_nifti(results['NII_FILE'],
+                                 ground_thruth_filenames(test_data.SIEMENS_MULTIFRAME_ANATOMICAL)[0])
             self.assertTrue(isinstance(results['NII'], nibabel.nifti1.Nifti1Image))
 
             results = convert_siemens.dicom_to_nifti(read_dicom_directory(test_data.SIEMENS_ANATOMICAL_IMPLICIT),
                                                      os.path.join(tmp_output_dir, 'test.nii.gz'))
             assert_compare_nifti(results['NII_FILE'],
-                                        ground_thruth_filenames(test_data.SIEMENS_ANATOMICAL_IMPLICIT)[0])
+                                 ground_thruth_filenames(test_data.SIEMENS_ANATOMICAL_IMPLICIT)[0])
             self.assertTrue(isinstance(results['NII'], nibabel.nifti1.Nifti1Image))
         finally:
             shutil.rmtree(tmp_output_dir)

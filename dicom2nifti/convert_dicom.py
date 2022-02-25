@@ -115,7 +115,7 @@ def dicom_array_to_nifti(dicom_list, output_file, reorient_nifti=True):
     vendor = _get_vendor(dicom_list)
 
     if vendor == Vendor.GENERIC:
-        results = convert_generic.dicom_to_nifti(dicom_list, output_file)
+        results = convert_generic.dicodm_to_nifti(dicom_list, output_file)
     elif vendor == Vendor.SIEMENS:
         results = convert_siemens.dicom_to_nifti(dicom_list, output_file)
     elif vendor == Vendor.GE:
@@ -148,7 +148,7 @@ def are_imaging_dicoms(dicom_input):
     """
 
     # if it is philips and multiframe dicom then we assume it is ok
-    if common.is_philips(dicom_input):
+    if common.is_philips(dicom_input) or common.is_siemens(dicom_input):
         if common.is_multiframe_dicom(dicom_input):
             return True
 

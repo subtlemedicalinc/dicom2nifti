@@ -1,5 +1,6 @@
 import logging
 import os
+import traceback
 
 import dicom2nifti
 import dicom2nifti.image_reorientation as image_reorientation
@@ -28,13 +29,14 @@ def main():
             dir_path = os.path.join(root, dir_name)
             if subdir_count(dir_path) > 0:
                 continue  # not processing because not lowest level of directory
-            logging.info(dir_path)
+            print(dir_path)
             output_file = dir_path + '_ground_truth.nii.gz'
             reoriented_file = dir_path + '_ground_truth_reoriented.nii.gz'
             # noinspection PyBroadException
             try:
                 generate_ground_truth(dir_path, output_file, reoriented_file)
-            except:  # explicitly capturing everything here
+            except: # explicitly capturing everything here
+                traceback.print_exc()
                 pass
 
 
@@ -68,5 +70,6 @@ def generate_inconsistent_slice_incement():
 
 
 if __name__ == "__main__":
+
     main()
-    generate_inconsistent_slice_incement()
+    #generate_inconsistent_slice_incement()

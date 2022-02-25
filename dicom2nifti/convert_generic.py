@@ -17,6 +17,68 @@ from dicom2nifti.exceptions import ConversionError, ConversionValidationError
 
 logger = logging.getLogger(__name__)
 
+def multiframe_to_nifti(dicom_input, output_file):
+    """
+    This function will convert an anatomical dicom series to a nifti
+
+    Examples: See unit test
+
+    :param output_file: filepath to the output nifti
+    :param dicom_input: directory with the dicom files for a single scan, or list of read in dicoms
+    """
+    if len(dicom_input) <= 0:
+        raise ConversionError('NO_DICOM_FILES_FOUND')
+
+    if settings.validate_slicecount:
+        common.multiframe_validate_slicecount(dicom_input)
+    if settings.validate_orientation:
+        # validate that all slices have the same orientation
+        common.multiframe_validate_orientation(dicom_input)
+    if settings.validate_orthogonal:
+        # validate that we have an orthogonal image (to detect gantry tilting etc)
+        common.multiframe_validate_orthogonal(dicom_input)
+
+    # validate slice increment inconsistent
+    slice_increment_inconsistent = False
+    if settings.validate_slice_increment:
+        # validate that all slices have a consistent slice increment
+        common.multiframe_validate_slice_increment(dicom_input)
+    elif common.multiframe_is_slice_increment_inconsistent(dicom_input):
+        slice_increment_inconsistent = True
+
+    # if inconsistent increment and we allow resampling then do the resampling based conversion to maintain the correct geometric shape
+    if slice_increment_inconsistent and settings.resample:
+        raise Exception('Conversion of inconsistent slice increment with resampling not supported for mutlframe')
+        # TODO add support for this if it actually exists
+    # do the normal conversion
+    else:
+        # Get data; originally z,y,x, transposed to x,y,z
+        data = common.multiframe_get_volume_pixeldata(dicom_input)
+
+        affine, max_slice_increment = common.multiframe_create_affine(dicom_input)
+
+        # Convert to nifti
+        if data.ndim > 3:  # do not squeeze single slice data
+            data = data.squeeze()
+        if dicom_input[0].PhotometricInterpretation == 'RGB':
+            nii_image = create_rgba_nifti(data, affine)
+        else:
+            nii_image = nibabel.Nifti1Image(data, affine)
+
+    # Set TR and TE if available
+    if Tag(0x0018, 0x0080) in dicom_input[0] and Tag(0x0018, 0x0081) in dicom_input[0]:
+        common.set_tr_te(nii_image, float(dicom_input[0].RepetitionTime), float(dicom_input[0].EchoTime))
+
+    # Save to disk
+    if output_file is not None:
+        logger.info('Saving nifti to disk %s' % output_file)
+        nii_image.header.set_slope_inter(1, 0)
+        nii_image.header.set_xyzt_units(2)  # set units for xyz (leave t as unknown)
+        nii_image.to_filename(output_file)
+
+    return {'NII_FILE': output_file,
+            'NII': nii_image,
+            'MAX_SLICE_INCREMENT': max_slice_increment}
 
 def dicom_to_nifti(dicom_input, output_file):
     """

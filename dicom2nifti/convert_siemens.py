@@ -64,6 +64,10 @@ def dicom_to_nifti(dicom_input, output_file=None):
         logger.info('Found sequence type: MOSAIC 4D')
         return _mosaic_4d_to_nifti(dicom_input, output_file)
 
+    if common.is_multiframe_dicom(dicom_input):
+        logger.info('Found sequence type: MULTIFRAME')
+        return convert_generic.multiframe_to_nifti(dicom_input, output_file)
+
     grouped_dicoms = _classic_get_grouped_dicoms(dicom_input)
     if _is_classic_4d(grouped_dicoms):
         logger.info('Found sequence type: CLASSIC 4D')
