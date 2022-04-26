@@ -4,7 +4,7 @@ dicom2nifti
 
 @author: abrys
 """
-
+import logging
 import shutil
 import tempfile
 import unittest
@@ -31,13 +31,13 @@ class TestConversionDirectory(unittest.TestCase):
             shutil.rmtree(tmp_output_dir)
 
     def test_convert_directory2(self):
-
+        logging.basicConfig(level=logging.DEBUG)
         tmp_output_dir = tempfile.mkdtemp()
         try:
             import pydicom
             # headers = pydicom.read_file("/Users/abrys/Downloads/failing_cases/test.dcm")
-            convert_directory.convert_directory("/Users/abrys/Downloads/Agfa",
-                                                "/Users/abrys/Downloads/Agfa")
+            convert_directory.convert_directory("/Users/abrys/Downloads/dti",
+                                                "/Users/abrys/Downloads/dti")
 
         finally:
             shutil.rmtree(tmp_output_dir)
