@@ -9,6 +9,8 @@ import re
 import traceback
 
 import logging
+from math import ceil, sqrt
+
 import nibabel
 import numpy
 
@@ -471,8 +473,9 @@ def _mosaic_to_block(mosaic):
             int(re.findall(r'sSliceArray\.lSize\s*=\s*(\d+)', ascconv_headers)[0])]
 
     # get the number of rows and columns
-    number_x = int(mosaic.Rows / size[0])
-    number_y = int(mosaic.Columns / size[1])
+    number_x = number_y = ceil(sqrt(size[2]))
+    #number_x = int(mosaic.Rows / size[0])
+    #number_y = int(mosaic.Columns / size[1])
 
     # recreate 2d slice
     data_2d = mosaic.pixel_array
@@ -590,6 +593,6 @@ def _create_bvecs(sorted_dicoms, bvec_file):
             # normalize the bvec
             new_bvec /= numpy.linalg.norm(new_bvec)
         bvecs[index, :] = new_bvec
-        # save the found bvecs to the file
-        common.write_bvec_file(bvecs, bvec_file)
+    # save the found bvecs to the file
+    common.write_bvec_file(bvecs, bvec_file)
     return numpy.array(bvecs)
