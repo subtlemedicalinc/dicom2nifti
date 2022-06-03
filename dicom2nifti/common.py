@@ -4,6 +4,10 @@ dicom2nifti
 
 @author: abrys
 """
+import warnings
+
+import pydicom.uid
+
 import dicom2nifti.compressed_dicom as compressed_dicom
 
 import os
@@ -247,7 +251,13 @@ def _get_slice_pixeldata(dicom_slice):
     :type dicom_slice: pydicom object
     :param dicom_slice: slice to get the pixeldata for
     """
-    data = dicom_slice.pixel_array
+    try:
+        data = dicom_slice.pixel_array
+    except AttributeError:
+        dicom_slice.file_meta.TransferSyntaxUID = pydicom.uid.ImplicitVRLittleEndian
+        data = dicom_slice.pixel_array
+        warnings.warn('TransferSyntaxUID not set trying ImplicitVRLittleEndian')
+
     # fix overflow issues for signed data where BitsStored is lower than BitsAllocated and PixelReprentation = 1 (signed)
     # for example a hitachi mri scan can have BitsAllocated 16 but BitsStored is 12 and HighBit 11
     if dicom_slice.BitsAllocated != dicom_slice.BitsStored and \

@@ -41,7 +41,7 @@ def dicom_to_nifti(dicom_input, output_file=None):
     dicom_input = convert_generic.remove_localizers_by_imagetype(dicom_input)
 
     # remove_localizers based on image orientation (only valid if slicecount is validated)
-    dicom_input = convert_generic.remove_localizers_by_orientation(dicom_input)
+    # dicom_input = convert_generic.remove_localizers_by_orientation(dicom_input)
 
     logger.info('Reading and sorting dicom files')
     grouped_dicoms = _get_grouped_dicoms(dicom_input)

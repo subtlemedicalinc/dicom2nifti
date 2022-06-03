@@ -2,6 +2,8 @@ import logging
 import os
 import subprocess
 import tempfile
+import traceback
+import warnings
 
 import dicom2nifti.settings as settings
 from dicom2nifti.exceptions import ConversionError
@@ -23,6 +25,12 @@ def read_file(dicom_file, defer_size=None, stop_before_pixels=False, force=False
                                      defer_size=None,  # We can't defer
                                      stop_before_pixels=stop_before_pixels,
                                      force=force)
+
+        except subprocess.CalledProcessError:
+            traceback.print_exc()
+            warnings.warn('failed to decompress dicom '
+                          '-> maybe it was wrongly detected as compressed, attempting to load anyway')
+
         finally:
             os.remove(fp.name)
 
