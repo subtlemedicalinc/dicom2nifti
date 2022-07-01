@@ -5,8 +5,11 @@ dicom2nifti
 @author: abrys
 """
 import logging
+import warnings
+
 import nibabel
 import numpy
+import pydicom
 
 from pydicom.tag import Tag
 
@@ -80,6 +83,7 @@ def multiframe_to_nifti(dicom_input, output_file):
             'NII': nii_image,
             'MAX_SLICE_INCREMENT': max_slice_increment}
 
+
 def dicom_to_nifti(dicom_input, output_file):
     """
     This function will convert an anatomical dicom series to a nifti
@@ -91,6 +95,13 @@ def dicom_to_nifti(dicom_input, output_file):
     """
     if len(dicom_input) <= 0:
         raise ConversionError('NO_DICOM_FILES_FOUND')
+
+    try:
+        dicom_input[0].file_meta.TransferSyntaxUID
+    except AttributeError:
+        for dcm_in in dicom_input:
+            dcm_in.file_meta.TransferSyntaxUID = pydicom.uid.ImplicitVRLittleEndian
+            warnings.warn('TransferSyntaxUID not set trying ImplicitVRLittleEndian')
 
     # remove duplicate slices based on position and data
     dicom_input = remove_duplicate_slices(dicom_input)

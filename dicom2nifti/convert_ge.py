@@ -4,6 +4,10 @@ dicom2nifti
 
 @author: abrys
 """
+import warnings
+
+import pydicom.uid
+
 from dicom2nifti.exceptions import ConversionError
 
 import itertools
@@ -33,6 +37,13 @@ def dicom_to_nifti(dicom_input, output_file=None):
     :param dicom_input: list with dicom objects
     """
     assert common.is_ge(dicom_input)
+
+    try:
+        dicom_input[0].file_meta.TransferSyntaxUID
+    except AttributeError:
+        for dcm_in in dicom_input:
+            dcm_in.file_meta.TransferSyntaxUID = pydicom.uid.ImplicitVRLittleEndian
+            warnings.warn('TransferSyntaxUID not set trying ImplicitVRLittleEndian')
 
     # remove duplicate slices based on position and data
     dicom_input = convert_generic.remove_duplicate_slices(dicom_input)
